@@ -26,6 +26,8 @@ public class CodigoDescuento extends Base {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
+    private double tope;
+
     private int limiteUsado;
 
     private double porcentajeDescuento;

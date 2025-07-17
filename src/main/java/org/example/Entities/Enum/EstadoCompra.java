@@ -1,6 +1,6 @@
 package org.example.Entities.Enum;
 
-public enum Estado {
+public enum EstadoCompra {
 
     EMPAQUETADO, COMPLETADO, PREPARANDO, ENVIANDO
 }

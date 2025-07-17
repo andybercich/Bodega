@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CodigoDescuentoRepository extends BaseRepository<CodigoDescuento, Long>{
+
+    public CodigoDescuento findByCodigo(String codigo);
 }
