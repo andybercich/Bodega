@@ -1,10 +1,14 @@
 package org.example.Controllers;
 
+import jakarta.validation.Valid;
+import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Repositories.UsuarioRepository;
+import org.example.Services.DTO.ValidacionDTO;
 import org.example.Services.UsuarioService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuario")
@@ -12,4 +16,34 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
     public UsuarioController(UsuarioService service) {
         super(service);
     }
+
+
+    @PostMapping("/registrarUsuario")
+    public ResponseEntity<?> registrarNuevoUsuario(@RequestBody @Valid Usuario usuario) {
+        try {
+
+            Usuario newUser = service.registrarUsuario(usuario);
+
+        return ResponseEntity.ok("d");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar al usuario: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/validarMail")
+    public ResponseEntity<?> validarMail(@RequestBody ValidacionDTO validacionDTO) {
+        try {
+
+            Usuario newUser = service.validarCodigoYRegistrar(validacionDTO);
+
+            return ResponseEntity.ok("d");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar al usuario: " + e.getMessage());
+        }
+    }
+
 }
