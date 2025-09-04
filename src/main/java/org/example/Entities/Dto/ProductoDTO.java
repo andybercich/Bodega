@@ -27,6 +27,8 @@ public class ProductoDTO {
 
     private double precio;
 
+    private String descripcion;
+
     private int stock;
 
     private Categoria categoria;
@@ -51,6 +53,7 @@ public class ProductoDTO {
         dto.setNombre(producto.getNombre());
         dto.setPrecio(producto.getPrecio());
         dto.setStock(producto.getStock());
+        dto.setDescripcion(producto.getDescripcion());
         dto.setCategoria(producto.getCategoria());
         dto.setDestacado(producto.isDestacado());
         dto.setFechaCreacion(producto.getFechaCreacion());

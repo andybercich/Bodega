@@ -1,8 +1,13 @@
 package org.example.Services;
 
+import org.example.Entities.Dto.ProductoDTO;
+import org.example.Entities.Dto.ProductoPageDTO;
 import org.example.Entities.Imagen;
 import org.example.Entities.Producto;
 import org.example.Repositories.ProductoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,20 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
             return repository.save(producto);
         }catch (Exception e){
             throw new Exception("Error al guardar producto y susu imagenes"+e.getMessage());
+        }
+    }
+
+    public ProductoPageDTO getProductosDestacados(int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Producto> productosDestacados = repository.findByDestacadoTrueOrderByFechaCreacionDesc(pageable);
+
+
+            return new ProductoPageDTO(productosDestacados.getContent(), page,
+                    size, productosDestacados.getTotalPages());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
