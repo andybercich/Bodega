@@ -27,7 +27,7 @@ public class Compra extends Base{
     private Direccion direccionEnvio;
 
     @Enumerated(EnumType.STRING)
-    private EstadoCompra estado;
+    private EstadoCompra estadoCompra;
 
     private LocalDateTime fechaCompra;
 
