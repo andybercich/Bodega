@@ -61,4 +61,26 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         }
     }
 
+    public List<ProductoDTO> getAllProductos() throws Exception {
+        try{
+            return repository.findAll()
+                    .stream()
+                    .map(ProductoDTO::fromEntity)
+                    .toList();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public ProductoDTO getProductoById(Long id) throws Exception {
+        try {
+            Producto producto = repository.findById(id)
+                    .orElseThrow(() -> new Exception("Producto no encontrado con id: " + id));
+            return ProductoDTO.fromEntity(producto);
+
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package org.example.Controllers;
 
+import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
 import org.example.Entities.Producto;
 import org.example.Repositories.ProductoRepository;
@@ -16,6 +17,28 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
 
     public ProductoController(ProductoService service) {
         super(service);
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<List<ProductoDTO>> findAll() {
+        try {
+            List<ProductoDTO> productosDTO = service.getAllProductos();
+            return ResponseEntity.ok(productosDTO);
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductoDTO> findById(@PathVariable Long id) {
+        try {
+            ProductoDTO productoDTO = service.getProductoById(id);
+            return ResponseEntity.ok(productoDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @Override

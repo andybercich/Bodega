@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class ProductoDTO {
 
+    private Long id;
 
     private String codigo;
 
@@ -43,12 +44,11 @@ public class ProductoDTO {
 
     private List<ImagenDTO> imagenes = new ArrayList<>();
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "fk_descuento")
     private DescuentoDTO descuento;
 
     public static ProductoDTO fromEntity(Producto producto){
         ProductoDTO dto = new ProductoDTO();
+        dto.setId(producto.getId());
         dto.setCodigo(producto.getCodigo());
         dto.setNombre(producto.getNombre());
         dto.setPrecio(producto.getPrecio());
