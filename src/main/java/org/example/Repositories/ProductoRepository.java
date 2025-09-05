@@ -2,6 +2,8 @@ package org.example.Repositories;
 
 import org.example.Entities.Categoria;
 import org.example.Entities.Producto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,7 +19,7 @@ public interface ProductoRepository extends BaseRepository<Producto, Long> {
 
     List<Producto> findByCategoriaNombre(String nombreCategoria);
 
-    List<Producto> findByDestacadoTrue();
+    Page<Producto> findByDestacadoTrueOrderByFechaCreacionDesc(Pageable pageable);
     //Encontrar los prod con descuentop
     List<Producto> findByDescuentoIsNotNull();
 
