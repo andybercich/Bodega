@@ -35,7 +35,6 @@ public class CodigoDescuento extends Base {
     @Enumerated(EnumType.STRING)
     private TipoCodigo tipoCodigo;
 
-    // Para tipo PERSONALIZADO
     @ManyToOne
     private Usuario usuarioAsignado;
 
