@@ -1,6 +1,7 @@
 package org.example.Entities;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -43,6 +44,7 @@ public class Compra extends Base{
 
     @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference
     private List<DetalleCompra> detalles = new ArrayList<>();
 
     @Override

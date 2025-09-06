@@ -2,11 +2,14 @@ package org.example.Controllers;
 
 import jakarta.validation.Valid;
 import org.example.Entities.Base;
+import org.example.Entities.Dto.ProductoDTO;
 import org.example.Repositories.BaseRepository;
 import org.example.Services.BaseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Validated
 @CrossOrigin(origins = "*")

@@ -1,6 +1,7 @@
 package org.example.Entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,6 +30,7 @@ public class DetalleCompra extends Base{
     @ManyToOne(optional = false, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "compra_id", nullable = false)
     @ToString.Exclude
+    @JsonBackReference
     private Compra compra;
 
     @Override
