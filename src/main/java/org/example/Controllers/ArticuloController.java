@@ -22,7 +22,7 @@ public class ArticuloController extends BaseController<Articulo,Long, ArticuloRe
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Articulo articulo) {
         try {
-            Articulo articuloGuardado = service.guardarArticuloConFotos(articulo);
+            Articulo articuloGuardado = service.guardarArticuloConFoto(articulo);
             return ResponseEntity.ok(articuloGuardado);
         } catch (Exception e) {
             return ResponseEntity

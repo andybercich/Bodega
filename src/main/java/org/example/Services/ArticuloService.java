@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ArticuloService extends BaseService<Articulo,Long, ArticuloRepository> {
 
-    public Articulo guardarArticuloConFotos(Articulo articulo) throws Exception {
+    public Articulo guardarArticuloConFoto(Articulo articulo) throws Exception {
         try {
-            for (Imagen imagen : articulo.getFotos()) {
-                imagen.setArticulo(articulo);
+            if (articulo.getImagen() != null) {
+                articulo.getImagen().setArticulo(articulo);
             }
             return repository.save(articulo);
-        }catch (Exception e){
-            throw new Exception("Error al guardar articulo y susu imagenes"+e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Error al guardar articulo y su imagen: " + e.getMessage());
         }
     }
 

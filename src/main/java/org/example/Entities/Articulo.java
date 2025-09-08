@@ -1,12 +1,10 @@
 package org.example.Entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -17,11 +15,14 @@ public class Articulo extends Base{
 
     private String titulo;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String texto;
 
-    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
-    @JsonManagedReference("articulo-imagen")
-    private List<Imagen> fotos = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_imagen")
+    private Imagen imagen;
 
+    private LocalDate fechaCreacion;
 
 }
