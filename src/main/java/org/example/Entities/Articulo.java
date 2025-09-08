@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.Entities.Enum.Tags;
+
 import java.time.LocalDate;
 
 @Entity
@@ -24,5 +26,7 @@ public class Articulo extends Base{
     private Imagen imagen;
 
     private LocalDate fechaCreacion;
+
+    private Tags tag;
 
 }
