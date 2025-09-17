@@ -120,4 +120,27 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         }
     }
 
+    public List<ProductoDTO> obtenerRelacionados(Long productoId) {
+        Producto productoOriginal = repository.findById(productoId).orElseThrow();
+
+        Long padreId = repository.findById(productoId)
+                .map(p -> p.getProductoPadre() != null ? p.getProductoPadre().getId() : null)
+                .orElse(null);
+
+        Specification<Producto> spec = ProductoSpecifications.obtenerRelacionados(productoId, padreId);
+        List<Producto> productosRelacionados= repository.findAll(spec);
+
+        if (productosRelacionados.size()<10){
+
+            Pageable limit = PageRequest.of(0, 10);
+            productosRelacionados.addAll(repository.findByCategoriaIDLimited(productoOriginal.getCategoria().getId(),
+                    productoId, limit));
+        }
+
+        return productosRelacionados
+                .stream()
+                .map(ProductoDTO::fromEntity)
+                .toList();
+    }
+
 }

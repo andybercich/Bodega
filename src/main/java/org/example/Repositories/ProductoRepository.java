@@ -44,5 +44,10 @@ public interface ProductoRepository extends BaseRepository<Producto, Long>, JpaS
     List<Producto> findByProductoPadre(Producto padre);
 
     Optional<Producto> findByCodigo(String codigo);
+
+    @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId AND p.id <> :excludeId")
+    List<Producto> findByCategoriaIDLimited(@Param("categoriaId") Long categoriaId,
+                                       @Param("excludeId") Long excludeId,
+                                       Pageable pageable);
 }
 

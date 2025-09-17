@@ -2,6 +2,8 @@ package org.example.Entities.EspecificationsSearch;
 
 import jakarta.persistence.criteria.Predicate;
 import org.example.Entities.Producto;
+import org.example.Repositories.ProductoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -33,26 +35,22 @@ public class ProductoSpecifications {
             if (precioMax != null) predicate = cb.and(predicate, cb.le(root.get("precio"), precioMax));
             if (fechaDesde != null) predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("fechaCreacion"), fechaDesde));
             if (fechaHasta != null) predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("fechaCreacion"), fechaHasta));
-            if (conPadre != null) {
-                if (conPadre) {
-                    predicate = cb.and(predicate, cb.isNotNull(root.get("productoPadre")));
-                } else {
-                    predicate = cb.and(predicate, cb.isNull(root.get("productoPadre")));
-                }
+
+            if (conPadre != null && conPadre) {
+                predicate = cb.and(predicate, cb.isNotNull(root.get("productoPadre")));
             }
 
             if (categorias != null && !categorias.isEmpty()) {
                 predicate = cb.and(predicate, root.get("categoria").get("id").in(categorias));
             }
 
-            if (destacado != null) predicate = cb.and(predicate, cb.equal(root.get("destacado"), destacado));
-            if (conDescuento != null) {
-                if (conDescuento) {
-                    predicate = cb.and(predicate, cb.isNotNull(root.get("descuento")));
-                } else {
-                    predicate = cb.and(predicate, cb.isNull(root.get("descuento")));
-                }
+            if (destacado != null && destacado){
+                predicate = cb.and(predicate, cb.equal(root.get("destacado"), destacado));
             }
+            if (conDescuento != null && conDescuento) {
+                predicate = cb.and(predicate, cb.isNotNull(root.get("descuento")));
+            }
+
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String[] palabras = keyword.toLowerCase().split("\\s+");
@@ -65,4 +63,22 @@ public class ProductoSpecifications {
             return predicate;
         };
     }
+
+    public static Specification<Producto> obtenerRelacionados(Long productoId, Long padreId) {
+        return (root, query, cb) -> {
+            Predicate pred;
+            if (padreId != null) {
+                pred = cb.or(
+                        cb.equal(root.get("id"), padreId),
+                        cb.equal(root.get("productoPadre").get("id"), padreId)
+                );
+            } else {
+                pred = cb.equal(root.get("productoPadre").get("id"), productoId);
+            }
+
+            return cb.and(pred, cb.notEqual(root.get("id"), productoId));
+        };
+    }
+
+
 }

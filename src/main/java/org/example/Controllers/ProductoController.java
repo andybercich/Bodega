@@ -110,4 +110,18 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/conectedProducts/{idProduct}")
+    public ResponseEntity<List<ProductoDTO>> connectedProducts(@PathVariable Long idProduct){
+        try {
+            return ResponseEntity.ok(service.obtenerRelacionados(idProduct));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+
+    }
+
+
 }
