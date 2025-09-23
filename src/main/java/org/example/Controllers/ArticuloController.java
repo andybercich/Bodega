@@ -16,24 +16,11 @@ public class ArticuloController extends BaseController<Articulo,Long, ArticuloRe
         super(service);
     }
 
-    @Override
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody Articulo articulo) {
-        try {
-            Articulo articuloGuardado = service.guardarArticuloConFoto(articulo);
-            return ResponseEntity.ok(articuloGuardado);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al guardar el articulo: " + e.getMessage());
-        }
-    }
-
 
     @GetMapping("/paginados")
     public ResponseEntity<?> getArticulosPaginados(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size) throws Exception{
+            @RequestParam int page,
+            @RequestParam int size) throws Exception{
 
         try {
             Page<Articulo> articulos = service.getArticulosPaginados(page, size);

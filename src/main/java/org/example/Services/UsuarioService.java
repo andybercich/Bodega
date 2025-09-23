@@ -1,5 +1,7 @@
 package org.example.Services;
 
+import org.example.Entities.Categoria;
+import org.example.Entities.Dto.CreateAdminDTO;
 import org.example.Entities.Enum.Rol;
 import org.example.Entities.Usuario;
 import org.example.Entities.UsuariosNuevos;
@@ -7,10 +9,14 @@ import org.example.Repositories.UsuarioRepository;
 import org.example.Repositories.UsuariosNuevosRepository;
 import org.example.Services.DTO.ValidacionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -88,4 +94,33 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
 
     }
+
+    public Page<Usuario> getUsuariosPaginados(int page, int size) throws Exception {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return repository.findAll(pageable);
+        }catch (Exception e){
+            throw new Exception("Error al obtener usuarios paginados: " + e.getMessage());
+        }
+    }
+
+    public Usuario crearUserAdmin(CreateAdminDTO userAdmin) throws Exception{
+            try {
+                Usuario admin = Usuario.builder()
+                        .nombre(userAdmin.getNombre())
+                        .mail(userAdmin.getMail())
+                        .password(userAdmin.getPassword())
+                        .dni(userAdmin.getDni())
+                        .rol(Rol.Admin) // ⚠️ siempre ADMIN
+                        .fechaRegistro(LocalDate.now())
+                        .estado(true)
+                        .build();
+
+                return repository.save(admin);
+
+            } catch (Exception e) {
+                throw new Exception("Error al crear usuario admin: " + e.getMessage());
+            }
+    }
+
 }

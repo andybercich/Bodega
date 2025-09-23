@@ -68,6 +68,17 @@ public abstract class BaseController<T extends Base, ID, Repo extends BaseReposi
         }
     }
 
+    @PutMapping("/activate/{id}")
+    public ResponseEntity<?> activate(@PathVariable ID id) {
+        try {
+            T activate = service.activateById(id);
+
+            return ResponseEntity.ok(activate);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable ID id) {
         try {

@@ -43,6 +43,11 @@ public interface ProductoRepository extends BaseRepository<Producto, Long>, JpaS
     List<Producto> findByProductoPadreIsNotNull();
     List<Producto> findByProductoPadre(Producto padre);
 
+
+    List<Producto> findByProductoPadreIsNull();
+    // Trae los productos que tienen un padre específico
+    List<Producto> findByProductoPadreId(Long padreId);
+
     Optional<Producto> findByCodigo(String codigo);
 
     @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId AND p.id <> :excludeId")

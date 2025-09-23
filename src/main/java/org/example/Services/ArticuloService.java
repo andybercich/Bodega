@@ -11,17 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ArticuloService extends BaseService<Articulo,Long, ArticuloRepository> {
 
-    public Articulo guardarArticuloConFoto(Articulo articulo) throws Exception {
-        try {
-            if (articulo.getImagen() != null) {
-                articulo.getImagen().setArticulo(articulo);
-            }
-            return repository.save(articulo);
-        } catch (Exception e) {
-            throw new Exception("Error al guardar articulo y su imagen: " + e.getMessage());
-        }
-    }
-
     public Page<Articulo> getArticulosPaginados(int page, int size) throws Exception {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -31,6 +20,37 @@ public class ArticuloService extends BaseService<Articulo,Long, ArticuloReposito
         }
     }
 
+    @Override
+    public Articulo activateById(Long id) throws Exception {
+        try{
+            Articulo articulo = repository.findById(id)
+                    .orElseThrow(() -> new Exception("Artículo no encontrado"));
 
+            articulo.setEstado(true);
+            if (articulo.getImagen() != null) {
+                articulo.getImagen().setEstado(true);
+            }
+            return repository.save(articulo);
+        }catch (Exception e){
+            throw new Exception("Error al activar Articulo: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Articulo deleteById(Long id) throws Exception {
+        try{
+            Articulo articulo = repository.findById(id)
+                    .orElseThrow(() -> new Exception("Artículo no encontrado"));
+
+            articulo.setEstado(false);
+
+            if (articulo.getImagen() != null) {
+                articulo.getImagen().setEstado(false);
+            }
+            return repository.save(articulo);
+        }catch (Exception e){
+            throw new Exception("Error al eliminar Articulo: " + e.getMessage());
+        }
+    }
 
 }
