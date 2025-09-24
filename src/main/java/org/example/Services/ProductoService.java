@@ -1,11 +1,14 @@
 package org.example.Services;
 
+import org.example.Entities.Dto.ImagenDTO;
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
 import org.example.Entities.EspecificationsSearch.ProductoSpecifications;
 import org.example.Entities.Imagen;
 import org.example.Entities.Producto;
+import org.example.Repositories.ImagenRepository;
 import org.example.Repositories.ProductoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,23 +24,21 @@ import java.util.List;
 @Service
 public class ProductoService extends BaseService<Producto,Long, ProductoRepository>{
 
-    public Producto guardarProductoConFotos(Producto producto) throws Exception {
+    /*public Producto guardarProductoConFotos(Producto producto) throws Exception {
         try {
             for (Imagen imagen : producto.getImagenes()) {
                 imagen.setProducto(producto);
             }
             return repository.save(producto);
         }catch (Exception e){
-            throw new Exception("Error al guardar producto y susu imagenes"+e.getMessage());
+            throw new Exception("Error al guardar producto y sus imagenes"+e.getMessage());
         }
-    }
+    }*/
 
     public ProductoPageDTO getProductosDestacados(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Producto> productosDestacados = repository.findByDestacadoTrueOrderByFechaCreacionDesc(pageable);
-
-
             return new ProductoPageDTO(productosDestacados.getContent(), page,
                     size, productosDestacados.getTotalPages());
 

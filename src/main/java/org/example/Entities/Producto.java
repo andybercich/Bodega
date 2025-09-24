@@ -32,7 +32,7 @@ public class Producto extends Base {
 
     private boolean destacado;
 
-    @Column(name = "fecha_creacion")
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDate fechaCreacion;
 
     @ManyToOne
@@ -49,5 +49,9 @@ public class Producto extends Base {
     @JoinColumn(name = "fk_descuento")
     private Descuento descuento;
 
+    @PrePersist
+    protected void onCreate() {
+        this.fechaCreacion = LocalDate.now();
+    }
 
 }

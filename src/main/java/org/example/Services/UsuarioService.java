@@ -2,6 +2,7 @@ package org.example.Services;
 
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.CreateAdminDTO;
+import org.example.Entities.Dto.UpdateUserDTO;
 import org.example.Entities.Enum.Rol;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
@@ -17,11 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -166,9 +165,8 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
                 Usuario admin = Usuario.builder()
                         .nombre(userAdmin.getNombre())
                         .mail(userAdmin.getMail())
-                        .password(userAdmin.getPassword())
-                        .dni(userAdmin.getDni())
-                        .rol(Rol.Admin) // ⚠️ siempre ADMIN
+                        .password(userAdmin.getPassword()) //FALTA ENCRIPTAR ACA
+                        .rol(Rol.Admin)
                         .fechaRegistro(LocalDate.now())
                         .estado(true)
                         .build();
@@ -180,14 +178,28 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             }
     }
 
-    public boolean mailExistente(String mail){
+    public boolean mailExistente(String mail) {
         try {
 
             return repository.existsByMail(mail);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
+        public Usuario updateUserByAdmin (Long id, UpdateUserDTO dto) throws Exception {
+                try {
+                    Usuario usuario = repository.findById(id)
+                            .orElseThrow(() -> new Exception("Usuario no encontrado"));
 
+                    usuario.setNombre(dto.getNombre());
+                    usuario.setMail(dto.getMail());
+
+                    return repository.save(usuario);
+
+                } catch (Exception e) {
+                    throw new Exception("Error al actualizar usuario desde admin: " + e.getMessage());
+
+        }
+    }
 }

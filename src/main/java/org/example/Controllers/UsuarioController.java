@@ -2,6 +2,8 @@ package org.example.Controllers;
 
 import jakarta.validation.Valid;
 import org.example.Entities.Categoria;
+import org.example.Entities.Dto.CreateAdminDTO;
+import org.example.Entities.Dto.UpdateUserDTO;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Repositories.UsuarioRepository;
@@ -82,6 +84,10 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al registrar favorito: " + e.getMessage());
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 
@@ -97,6 +103,35 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al obtener categorias paginadas: " + e.getMessage());
 
+<<<<<<< HEAD
+=======
+        }
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> crearAdmin(@RequestBody @Valid CreateAdminDTO dto) {
+        try {
+            Usuario admin = service.crearUserAdmin(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear user Admin: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateUserByAdmin(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateUserDTO dto) {
+        try{
+            Usuario updated = service.updateUserByAdmin(id, dto);
+            return ResponseEntity.ok(updated);
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar user desde Admin: " + e.getMessage());
+>>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 

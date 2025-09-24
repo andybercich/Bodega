@@ -43,7 +43,7 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
         }
     }
 
-    @Override
+    /*@Override
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Producto producto) {
         try {
@@ -54,7 +54,8 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al guardar el producto: " + e.getMessage());
         }
-    }
+    }*/
+
     @GetMapping("/destacados")
     public ResponseEntity<ProductoPageDTO> getDestacados(
             @RequestParam(defaultValue = "0") int page,
