@@ -10,6 +10,5 @@ public class CreateAdminDTO {
     private String nombre;
     private String mail;
     private String password;
-    private int dni;
 
 }

@@ -25,9 +25,15 @@ public class Articulo extends Base{
     @JoinColumn(name = "fk_imagen")
     private Imagen imagen;
 
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDate fechaCreacion;
 
     @Enumerated(EnumType.STRING)
     private Tags tag;
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaCreacion = LocalDate.now();
+    }
 
 }

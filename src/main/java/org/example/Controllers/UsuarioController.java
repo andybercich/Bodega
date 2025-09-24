@@ -2,6 +2,8 @@ package org.example.Controllers;
 
 import jakarta.validation.Valid;
 import org.example.Entities.Categoria;
+import org.example.Entities.Dto.CreateAdminDTO;
+import org.example.Entities.Dto.UpdateUserDTO;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Repositories.UsuarioRepository;
@@ -48,7 +50,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
-<<<<<<< HEAD
     @PutMapping("favorite/{idProduct}/{idUser}")
     public ResponseEntity<?> agregarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
         try {
@@ -74,14 +75,17 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
     }
 
     @GetMapping("favorites/{idUser}")
-    public ResponseEntity<?> obtenerFavoritos (@PathVariable Long idUser){
+    public ResponseEntity<?> obtenerFavoritos (@PathVariable Long idUser) {
         try {
             return ResponseEntity.ok(service.obtenerFavoritos(idUser));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al registrar favorito: " + e.getMessage());
-=======
+
+        }
+    }
+
     @GetMapping("/paginados")
     public ResponseEntity<?> getUsuariosPaginados(
             @RequestParam int page,
@@ -93,7 +97,33 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al obtener categorias paginadas: " + e.getMessage());
->>>>>>> c761f852b5139318502aa4eb5bee3793d3b8238e
+
+        }
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> crearAdmin(@RequestBody @Valid CreateAdminDTO dto) {
+        try {
+            Usuario admin = service.crearUserAdmin(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear user Admin: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateUserByAdmin(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateUserDTO dto) {
+        try{
+            Usuario updated = service.updateUserByAdmin(id, dto);
+            return ResponseEntity.ok(updated);
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar user desde Admin: " + e.getMessage());
         }
     }
 
