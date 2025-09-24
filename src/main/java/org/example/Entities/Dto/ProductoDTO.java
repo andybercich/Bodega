@@ -22,6 +22,8 @@ public class ProductoDTO {
 
     private Long id;
 
+    private boolean estado;
+
     private String codigo;
 
     private String nombre;
@@ -49,6 +51,7 @@ public class ProductoDTO {
     public static ProductoDTO fromEntity(Producto producto){
         ProductoDTO dto = new ProductoDTO();
         dto.setId(producto.getId());
+        dto.setEstado(producto.isEstado());
         dto.setCodigo(producto.getCodigo());
         dto.setNombre(producto.getNombre());
         dto.setPrecio(producto.getPrecio());

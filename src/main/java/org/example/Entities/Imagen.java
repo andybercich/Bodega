@@ -19,11 +19,6 @@ public class Imagen extends Base{
     private String alt;
 
     @ManyToOne
-    @JoinColumn(name = "fk_articulo")
-    @JsonBackReference("articulo-imagen")
-    private Articulo articulo;
-
-    @ManyToOne
     @JoinColumn(name = "fk_producto")
     @JsonBackReference("producto-imagen")
     private Producto producto;

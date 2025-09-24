@@ -1,11 +1,13 @@
 package org.example.Controllers;
 
 import jakarta.validation.Valid;
+import org.example.Entities.Categoria;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Repositories.UsuarioRepository;
 import org.example.Services.DTO.ValidacionDTO;
 import org.example.Services.UsuarioService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +48,7 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
+<<<<<<< HEAD
     @PutMapping("favorite/{idProduct}/{idUser}")
     public ResponseEntity<?> agregarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
         try {
@@ -78,6 +81,19 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al registrar favorito: " + e.getMessage());
+=======
+    @GetMapping("/paginados")
+    public ResponseEntity<?> getUsuariosPaginados(
+            @RequestParam int page,
+            @RequestParam int size) throws Exception{
+        try {
+            Page<Usuario> usuarios = service.getUsuariosPaginados(page, size);
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener categorias paginadas: " + e.getMessage());
+>>>>>>> c761f852b5139318502aa4eb5bee3793d3b8238e
         }
     }
 

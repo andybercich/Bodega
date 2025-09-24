@@ -82,6 +82,18 @@ public abstract class BaseService<T extends Base, ID, Repo extends BaseRepositor
         return existingEntity;
     }
 
+    public T activateById(ID id) throws Exception {
+        try {
+            T existingEntity = repository.findById(id)
+                    .orElseThrow(() -> new Exception("Entity not found"));
+            existingEntity.setEstado(true);
+            return existingEntity;
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+
+    }
+
     public T deleteById(ID id) throws Exception {
         try {
             T existingEntity = repository.findById(id)

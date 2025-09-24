@@ -27,6 +27,7 @@ public class Articulo extends Base{
 
     private LocalDate fechaCreacion;
 
+    @Enumerated(EnumType.STRING)
     private Tags tag;
 
 }

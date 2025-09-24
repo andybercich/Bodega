@@ -45,6 +45,27 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         }
     }
 
+    public List<ProductoDTO> getProductosPadre() throws Exception{
+        try{
+            return repository.findByProductoPadreIsNull()
+                    .stream()
+                    .map(ProductoDTO::fromEntity)
+                    .toList();
+        }catch (Exception e){
+            throw new Exception("No se pudieron obtener los productos padre: "+e.getMessage());
+        }
+    }
+
+    public List<ProductoDTO> getHijosByPadre(Long padreId) throws Exception{
+        try{
+            return repository.findByProductoPadreId(padreId)
+                    .stream()
+                    .map(ProductoDTO::fromEntity)
+                    .toList();
+        }catch (Exception e){
+            throw new Exception("No se pudo obtener los los productos hijos: "+e.getMessage());
+        }
+    }
 
     public ProductoPageDTO buscarProductos(
             boolean nuevo,

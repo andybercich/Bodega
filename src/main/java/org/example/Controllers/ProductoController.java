@@ -68,6 +68,28 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
         }
     }
 
+    @GetMapping("/padres")
+    public ResponseEntity<List<ProductoDTO>> getProductosPadre() {
+        try {
+            List<ProductoDTO> productosPadre = service.getProductosPadre();
+            return ResponseEntity.ok(productosPadre);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Endpoint para traer los hijos de un producto padre específico
+    @GetMapping("/hijos/{padreId}")
+    public ResponseEntity<List<ProductoDTO>> getHijosByPadre(@PathVariable Long padreId) {
+        try {
+            List<ProductoDTO> hijos = service.getHijosByPadre(padreId);
+            return ResponseEntity.ok(hijos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     @GetMapping("/search")
     public ResponseEntity<ProductoPageDTO> getFiltered(
             @RequestParam(required = false) boolean nuevo,
