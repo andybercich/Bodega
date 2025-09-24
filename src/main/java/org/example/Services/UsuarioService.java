@@ -1,8 +1,11 @@
 package org.example.Services;
 
+import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Enum.Rol;
+import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Entities.UsuariosNuevos;
+import org.example.Repositories.ProductoRepository;
 import org.example.Repositories.UsuarioRepository;
 import org.example.Repositories.UsuariosNuevosRepository;
 import org.example.Services.DTO.ValidacionDTO;
@@ -13,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -26,6 +32,9 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private ProductoRepository productoRepository;
 
     public Usuario registrarUsuario(Usuario newUser) throws Exception {
         try {
@@ -87,5 +96,50 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             throw new Exception("Error al validar y registrar usuario: " + e.getMessage());
         }
 
+    }
+
+    public boolean agregarFavorito(Long idProduct, Long idUser) throws Exception {
+        try {
+
+            Usuario usuario = repository.getReferenceById(idUser);
+            Producto newProductoFavorito = productoRepository.getReferenceById(idProduct);
+
+            usuario.agregarFavorito(newProductoFavorito);
+
+            return true;
+
+
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public boolean eliminarFavorito(Long idProduct, Long idUser) throws Exception {
+        try {
+
+            Usuario usuario = repository.getReferenceById(idUser);
+            Producto deleteProductoFavorito = productoRepository.getReferenceById(idProduct);
+
+            usuario.quitarFavorito(deleteProductoFavorito);
+
+            return true;
+
+
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Set<ProductoDTO> obtenerFavoritos(Long idUser) {
+        try {
+            Set<Producto> productos = repository.getReferenceById(idUser).getFavoritos();
+
+            return productos.stream()
+                    .map(ProductoDTO::fromEntity)
+                    .collect(Collectors.toSet());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

@@ -46,4 +46,39 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
+    @PutMapping("favorite/{idProduct}/{idUser}")
+    public ResponseEntity<?> agregarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
+        try {
+
+            return ResponseEntity.ok(service.agregarFavorito(idProduct, idUser));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar favorito: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("deleteFavorite/{idProduct}/{idUser}")
+    public ResponseEntity<?> eliminarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
+        try {
+
+            return ResponseEntity.ok(service.eliminarFavorito(idProduct, idUser));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar favorito: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("favorites/{idUser}")
+    public ResponseEntity<?> obtenerFavoritos (@PathVariable Long idUser){
+        try {
+            return ResponseEntity.ok(service.obtenerFavoritos(idUser));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar favorito: " + e.getMessage());
+        }
+    }
+
 }
