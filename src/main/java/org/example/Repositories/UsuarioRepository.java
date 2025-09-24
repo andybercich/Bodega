@@ -9,5 +9,6 @@ import java.time.LocalDate;
 @Repository
 public interface UsuarioRepository extends BaseRepository<Usuario, Long>{
 
+    boolean existsByMail(String mail);
 
 }

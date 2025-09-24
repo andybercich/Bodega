@@ -1,11 +1,7 @@
 package org.example.Services;
 
-<<<<<<< HEAD
 import org.example.Entities.Dto.ProductoDTO;
-=======
-import org.example.Entities.Categoria;
 import org.example.Entities.Dto.CreateAdminDTO;
->>>>>>> c761f852b5139318502aa4eb5bee3793d3b8238e
 import org.example.Entities.Enum.Rol;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
@@ -47,6 +43,9 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
 
     public Usuario registrarUsuario(Usuario newUser) throws Exception {
         try {
+
+
+
             String codigoVerificacion = codigoService.generarCodigoUnico();
 
             UsuariosNuevos usuarioNuevo = new UsuariosNuevos(
@@ -58,6 +57,8 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
                     Rol.User,
                     codigoVerificacion
             );
+
+            usuariosNuevosRepository.deleteByMail(usuarioNuevo.getMail());
 
             usuariosNuevosRepository.save(usuarioNuevo);
 
@@ -107,7 +108,6 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
 
     }
 
-<<<<<<< HEAD
     public boolean agregarFavorito(Long idProduct, Long idUser) throws Exception {
         try {
 
@@ -152,7 +152,6 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             throw new RuntimeException(e.getMessage());
         }
     }
-=======
     public Page<Usuario> getUsuariosPaginados(int page, int size) throws Exception {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -181,5 +180,14 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             }
     }
 
->>>>>>> c761f852b5139318502aa4eb5bee3793d3b8238e
+    public boolean mailExistente(String mail){
+        try {
+
+            return repository.existsByMail(mail);
+
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 }

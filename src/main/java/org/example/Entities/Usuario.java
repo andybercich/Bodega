@@ -32,6 +32,7 @@ public class Usuario extends Base{
     @NotNull(message = "El DNI de usuario no puede ser nulo")
     private int dni;
 
+    @Column(unique = true, nullable = false)
     @NotNull(message = "El mail de usuario no puede ser nulo")
     private String mail;
 
@@ -51,6 +52,11 @@ public class Usuario extends Base{
 
     @ManyToMany(mappedBy = "usuarios")
     private List<Direccion> direcciones = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaRegistro = LocalDate.now();
+    }
 
     public boolean usuarioNuevo(){
         return fechaRegistro != null && !LocalDate.now().isAfter(fechaRegistro.plusWeeks(1));

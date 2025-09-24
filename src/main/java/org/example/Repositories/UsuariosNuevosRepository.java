@@ -15,4 +15,6 @@ public interface UsuariosNuevosRepository extends BaseRepository<UsuariosNuevos,
 
     UsuariosNuevos findByMail(String mail);
 
+    void deleteByMail(String mail);
+
 }
