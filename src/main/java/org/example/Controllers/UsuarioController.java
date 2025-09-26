@@ -84,10 +84,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al registrar favorito: " + e.getMessage());
-<<<<<<< HEAD
-=======
-
->>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 
@@ -103,8 +99,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al obtener categorias paginadas: " + e.getMessage());
 
-<<<<<<< HEAD
-=======
         }
     }
 
@@ -131,7 +125,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al actualizar user desde Admin: " + e.getMessage());
->>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 

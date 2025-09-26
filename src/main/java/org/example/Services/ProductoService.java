@@ -1,39 +1,23 @@
 package org.example.Services;
 
-import org.example.Entities.Dto.ImagenDTO;
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
 import org.example.Entities.EspecificationsSearch.ProductoSpecifications;
-import org.example.Entities.Imagen;
 import org.example.Entities.Producto;
-import org.example.Repositories.ImagenRepository;
 import org.example.Repositories.ProductoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class ProductoService extends BaseService<Producto,Long, ProductoRepository>{
 
-    /*public Producto guardarProductoConFotos(Producto producto) throws Exception {
-        try {
-            for (Imagen imagen : producto.getImagenes()) {
-                imagen.setProducto(producto);
-            }
-            return repository.save(producto);
-        }catch (Exception e){
-            throw new Exception("Error al guardar producto y sus imagenes"+e.getMessage());
-        }
-    }*/
 
     public ProductoPageDTO getProductosDestacados(int page, int size) {
         try {
@@ -47,14 +31,26 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         }
     }
 
-    public List<ProductoDTO> getProductosPadre() throws Exception{
+    @Transactional
+    public Producto quitarDescuento(Long productoId) throws Exception {
         try{
-            return repository.findByProductoPadreIsNull()
-                    .stream()
-                    .map(ProductoDTO::fromEntity)
-                    .toList();
+            Producto producto = repository.findById(productoId)
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            producto.setDescuento(null);
+            return repository.save(producto);
         }catch (Exception e){
-            throw new Exception("No se pudieron obtener los productos padre: "+e.getMessage());
+            throw new Exception("Error al quitar un descuento: "+ e.getMessage());
+        }
+    }
+
+
+    public ProductoPageDTO getProductosPadrePaginados(int page, int size) throws Exception {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Producto> productosPadres = repository.findByProductoPadreIsNull(pageable);
+            return new ProductoPageDTO (productosPadres.getContent(), page, size,productosPadres.getTotalPages());
+        }catch (Exception e){
+            throw new Exception("No se pudieron obtener los productos padre: " + e.getMessage());
         }
     }
 
