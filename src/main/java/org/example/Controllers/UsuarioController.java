@@ -6,6 +6,7 @@ import org.example.Entities.Dto.CreateAdminDTO;
 import org.example.Entities.Dto.UpdateUserDTO;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
+import org.example.Entities.UsuariosNuevos;
 import org.example.Repositories.UsuarioRepository;
 import org.example.Services.DTO.ValidacionDTO;
 import org.example.Services.UsuarioService;
@@ -23,12 +24,13 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
 
 
     @PostMapping("/registrarUsuario")
-    public ResponseEntity<?> registrarNuevoUsuario(@RequestBody @Valid Usuario usuario) {
+    public ResponseEntity<?> registrarNuevoUsuario(@RequestBody @Valid UsuariosNuevos usuario) {
         try {
+
             if (service.mailExistente(usuario.getMail())){
                 return ResponseEntity.status(471).body("Este mail ya esta registrado");
             }
-            Usuario newUser = service.registrarUsuario(usuario);
+            UsuariosNuevos newUser = service.registrarUsuario(usuario);
 
              return ResponseEntity.ok("Se ha enviado el codigo de verificacion al mail: "+usuario.getMail());
         } catch (Exception e) {
@@ -84,10 +86,7 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al registrar favorito: " + e.getMessage());
-<<<<<<< HEAD
-=======
 
->>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 
@@ -103,8 +102,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al obtener categorias paginadas: " + e.getMessage());
 
-<<<<<<< HEAD
-=======
         }
     }
 
@@ -131,7 +128,6 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al actualizar user desde Admin: " + e.getMessage());
->>>>>>> 6ca940b797086d4aca2f1c0a1dbd75bcc866d4bc
         }
     }
 

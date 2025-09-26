@@ -16,7 +16,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "UsuarioNoRegistrados", uniqueConstraints = {@UniqueConstraint(columnNames = {"mail"})})
+@Table(name = "UsuarioNoRegistrados")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -16,6 +16,7 @@ public class CleanNewUsers {
         this.usuarioRepository = usuarioRepository;
     }
 
+    //Probar y cambiar antes de produccion el tiempo de cada cuanto se borran
     @Scheduled(cron = "0 0/30 * * * ?")
     public void eliminarUsuariosViejos() {
         LocalDate limite = LocalDate.now().minusDays(1);

@@ -40,12 +40,11 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
     @Autowired
     private ProductoRepository productoRepository;
 
-    public Usuario registrarUsuario(Usuario newUser) throws Exception {
+    public UsuariosNuevos registrarUsuario(UsuariosNuevos newUser) throws Exception {
         try {
 
-
-
             String codigoVerificacion = codigoService.generarCodigoUnico();
+            newUser.setFechaRegistro(LocalDate.now());
 
             UsuariosNuevos usuarioNuevo = new UsuariosNuevos(
                     newUser.getPassword(),
