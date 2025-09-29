@@ -1,5 +1,6 @@
 package org.example.Services;
 
+import org.example.Entities.Dto.LoginDTO;
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.CreateAdminDTO;
 import org.example.Entities.Dto.UpdateUserDTO;
@@ -15,12 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,12 +79,11 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
     }
 
-    public Usuario validarCodigoYRegistrar(ValidacionDTO validacionDTO) throws Exception {
-        try {
+    public Usuario validarCodigoYRegistrar(ValidacionDTO validacionDTO){
             UsuariosNuevos usuarioNuevo = usuariosNuevosRepository.findByMail(validacionDTO.getMail());
 
             if (!usuarioNuevo.getCodigoVerificacion().equals(validacionDTO.getCodVerificacion())) {
-                throw new Exception("Código de verificación incorrecto");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Código de verificación incorrecto");
             }
 
             Usuario usuario = Usuario.builder()
@@ -100,9 +104,18 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
 
             return usuario;
 
-        } catch (Exception e) {
-            throw new Exception("Error al validar y registrar usuario: " + e.getMessage());
+
+    }
+
+    public Usuario login (LoginDTO loginDTO){
+        Usuario usuario = repository.findByMail(loginDTO.getMail());
+
+        if (!Objects.equals(usuario.getPassword(), loginDTO.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario o contraseña son incorrectas");
         }
+
+        return usuario;
+
 
     }
 

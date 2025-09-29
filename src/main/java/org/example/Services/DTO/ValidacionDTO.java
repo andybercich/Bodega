@@ -12,6 +12,6 @@ public class ValidacionDTO {
     private String mail;
 
     @NotNull(message = "El código de verificación no puede ser nulo")
-    @Size(min = 4, max = 4, message = "El código debe tener 4 caracteres")
+    @Size( max = 7, message = "El código debe tener 7 caracteres")
     private String codVerificacion;
 }

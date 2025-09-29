@@ -3,6 +3,7 @@ package org.example.Controllers;
 import jakarta.validation.Valid;
 import org.example.Entities.Categoria;
 import org.example.Entities.Dto.CreateAdminDTO;
+import org.example.Entities.Dto.LoginDTO;
 import org.example.Entities.Dto.UpdateUserDTO;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
@@ -13,6 +14,7 @@ import org.example.Services.UsuarioService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,17 +43,23 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
     }
 
     @PostMapping("/validarMail")
-    public ResponseEntity<?> validarMail(@RequestBody ValidacionDTO validacionDTO) {
-        try {
+    public ResponseEntity<?> validarMail(@RequestBody @Valid  ValidacionDTO validacionDTO) {
+
 
             Usuario newUser = service.validarCodigoYRegistrar(validacionDTO);
 
             return ResponseEntity.ok(newUser);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al registrar al usuario: " + e.getMessage());
-        }
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
+
+
+        Usuario usuario = service.login(loginDTO);
+
+        return ResponseEntity.ok(usuario);
+
     }
 
     @PutMapping("favorite/{idProduct}/{idUser}")

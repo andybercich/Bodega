@@ -11,4 +11,6 @@ public interface UsuarioRepository extends BaseRepository<Usuario, Long>{
 
     boolean existsByMail(String mail);
 
+    Usuario findByMail(String mail);
+
 }

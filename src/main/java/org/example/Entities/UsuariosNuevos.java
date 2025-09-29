@@ -41,8 +41,8 @@ public class UsuariosNuevos extends Base{
     @Enumerated(EnumType.STRING)
     private Rol rol;
 
-    @Column(length = 4)
-    @Size(min = 4, max = 4, message = "El código debe tener 4 caracteres")
+    @Column(length = 7)
+    @Size( max = 7, message = "El código debe tener 7 caracteres")
     private String codigoVerificacion;
 
 
