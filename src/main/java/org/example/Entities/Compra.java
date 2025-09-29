@@ -30,6 +30,7 @@ public class Compra extends Base{
     @Enumerated(EnumType.STRING)
     private EstadoCompra estadoCompra;
 
+    @Column(name = "fecha_compra", updatable = false)
     private LocalDateTime fechaCompra;
 
     private boolean direccionUsuario;
@@ -98,6 +99,12 @@ public class Compra extends Base{
             throw new Exception(e.getMessage());
         }
     }
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaCompra = LocalDateTime.now();
+    }
+
 
 
 }

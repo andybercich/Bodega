@@ -1,14 +1,15 @@
 package org.example.Services;
 
 import jakarta.transaction.Transactional;
-import org.example.Entities.Compra;
-import org.example.Entities.DetalleCompra;
+import org.example.Entities.*;
 import org.example.Entities.Dto.ProductoDTO;
-import org.example.Entities.Producto;
-import org.example.Entities.Usuario;
+import org.example.Entities.Enum.EstadoCompra;
 import org.example.Repositories.CompraRepository;
 import org.example.Repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -64,12 +65,13 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
                 }
 
                 BigDecimal precioOriginal = BigDecimal.valueOf(producto.getPrecio());
-                if (producto.getDescuento().isValid()){
-                    precioOriginal = BigDecimal.valueOf(producto.getPrecio());
+
+                if (producto.getDescuento() != null && producto.getDescuento().isValid()) {
                     BigDecimal porcentaje = BigDecimal.valueOf(producto.getDescuento().getValor());
                     BigDecimal montoDescuento = precioOriginal.multiply(porcentaje).divide(BigDecimal.valueOf(100));
-                    d.setPrecioUnitario( precioOriginal.subtract(montoDescuento));
+                    precioOriginal = precioOriginal.subtract(montoDescuento);
                 }
+
                 d.setPrecioUnitario(precioOriginal);
 
                 d.setProducto(producto);
@@ -94,6 +96,7 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
             return repository.save(orden);
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al guardar la orden de compra: " + e.getMessage(), e);
         }
     }
@@ -164,5 +167,38 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
         }
     }
 
+
+    public Page<Compra> getComprasPaginados(int page, int size) throws Exception {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return repository.findAll(pageable);
+        }catch (Exception e){
+            throw new Exception("Error al obtener compras paginados: " + e.getMessage());
+        }
+    }
+
+    public Compra actualizarEstado(Long compraId, EstadoCompra estadoCompra) throws Exception{
+        try{
+            Compra compra = repository.findById(compraId)
+                    .orElseThrow(() -> new RuntimeException("La compra no existe"));
+
+            compra.setEstadoCompra(estadoCompra);
+            return compra;
+        }catch (Exception e){
+            throw new Exception("Error al actualizar estado de la compra: "+e.getMessage());
+        }
+    }
+
+    public Compra actualizarCodSeguimiento(Long compraId, String codigoSeguimiento) throws Exception{
+        try{
+            Compra compra = repository.findById(compraId)
+                    .orElseThrow(() -> new RuntimeException("La compra no existe"));
+
+            compra.setCodigoSeguimiento(codigoSeguimiento);
+            return compra;
+        }catch (Exception e){
+            throw new Exception("Error al actualizar código de seguiemiento de la compra: "+e.getMessage());
+        }
+    }
 
 }
