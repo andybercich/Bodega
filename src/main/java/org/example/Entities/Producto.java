@@ -1,5 +1,6 @@
 package org.example.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -45,8 +46,9 @@ public class Producto extends Base {
     @JsonManagedReference("producto-imagen")
     private List<Imagen> imagenes = new ArrayList<>();
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "fk_descuento")
+    @JsonBackReference
     private Descuento descuento;
 
     @PrePersist

@@ -1,6 +1,5 @@
 package org.example.Controllers;
 
-import org.example.Entities.Articulo;
 import org.example.Entities.Categoria;
 import org.example.Repositories.CategoriaRepository;
 import org.example.Services.CategoriaService;

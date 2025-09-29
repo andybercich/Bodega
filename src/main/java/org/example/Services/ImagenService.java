@@ -22,18 +22,23 @@ public class ImagenService extends BaseService<Imagen,Long, ImagenRepository>{
     }
 
     @Transactional
-    public Imagen agregarImagenAProducto(Long productoId, ImagenDTO dto) throws Exception{
-        try{
+    public Imagen agregarImagenAProducto(Long productoId, ImagenDTO dto) throws Exception {
+        try {
             Producto producto = productoRepository.findById(productoId)
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            if (producto.getImagenes().size() >= 4) {
+                throw new RuntimeException("El producto ya tiene el máximo de 4 imágenes");
+            }
 
             Imagen imagen = new Imagen();
             imagen.setUrl(dto.getUrl());
             imagen.setAlt(dto.getAlt());
             imagen.setProducto(producto);
+            imagen.setEstado(true);
 
             return repository.save(imagen);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }

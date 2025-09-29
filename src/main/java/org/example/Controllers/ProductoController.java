@@ -4,6 +4,7 @@ import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
 import org.example.Entities.Producto;
 import org.example.Repositories.ProductoRepository;
+import org.example.Services.DescuentoService;
 import org.example.Services.ProductoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequestMapping("/producto")
 public class ProductoController extends BaseController<Producto,Long, ProductoRepository, ProductoService> {
 
-    public ProductoController(ProductoService service) {
+    public ProductoController(ProductoService service, DescuentoService descuentoService) {
         super(service);
     }
 
@@ -43,18 +44,17 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
         }
     }
 
-    /*@Override
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody Producto producto) {
+    @PatchMapping("/{id}/quitar-descuento")
+    public ResponseEntity<?> quitarDescuento(@PathVariable Long id) {
         try {
-            Producto productoGuardado = service.guardarProductoConFotos(producto);
-            return ResponseEntity.ok(productoGuardado);
+            Producto productoActualizado = service.quitarDescuento(id);
+            return ResponseEntity.ok(productoActualizado);
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al guardar el producto: " + e.getMessage());
+                    .body("Error al quitar un descuento: " + e.getMessage());
         }
-    }*/
+    }
 
     @GetMapping("/destacados")
     public ResponseEntity<ProductoPageDTO> getDestacados(
@@ -70,16 +70,19 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
     }
 
     @GetMapping("/padres")
-    public ResponseEntity<List<ProductoDTO>> getProductosPadre() {
+    public ResponseEntity<?> getProductosPadre(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<ProductoDTO> productosPadre = service.getProductosPadre();
-            return ResponseEntity.ok(productosPadre);
+            return ResponseEntity.ok(service.getProductosPadrePaginados(page, size));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener " +
+                            "productos padres paginadas: " + e.getMessage());
         }
     }
 
-    // Endpoint para traer los hijos de un producto padre específico
     @GetMapping("/hijos/{padreId}")
     public ResponseEntity<List<ProductoDTO>> getHijosByPadre(@PathVariable Long padreId) {
         try {
@@ -142,9 +145,6 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-
-
     }
-
 
 }

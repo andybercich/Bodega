@@ -1,6 +1,5 @@
 package org.example.Repositories;
 
-import org.example.Entities.Categoria;
 import org.example.Entities.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +42,7 @@ public interface ProductoRepository extends BaseRepository<Producto, Long>, JpaS
     List<Producto> findByProductoPadre(Producto padre);
 
 
-    List<Producto> findByProductoPadreIsNull();
+    Page<Producto> findByProductoPadreIsNull(Pageable pageable);
     // Trae los productos que tienen un padre específico
     List<Producto> findByProductoPadreId(Long padreId);
 
