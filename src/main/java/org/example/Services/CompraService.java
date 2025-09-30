@@ -2,24 +2,35 @@ package org.example.Services;
 
 import jakarta.transaction.Transactional;
 import org.example.Entities.*;
+import org.example.Entities.Dto.CompraPageDTO;
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Enum.EstadoCompra;
+import org.example.Entities.EspecificationsSearch.CompraSpecifications;
 import org.example.Repositories.CompraRepository;
 import org.example.Repositories.ProductoRepository;
+import org.example.Repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CompraService extends BaseService<Compra, Long, CompraRepository>{
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional
@@ -198,6 +209,52 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
             return compra;
         }catch (Exception e){
             throw new Exception("Error al actualizar código de seguiemiento de la compra: "+e.getMessage());
+        }
+    }
+
+    public List<Compra> getByIdUser(Long id){
+
+
+        if (!usuarioRepository.existsById(id)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El id usuario no existe");
+        }
+
+        return repository.findByUsuarioId(id);
+
+    }
+
+    public CompraPageDTO buscarCompras(
+            String codigoSeguimiento,
+            String nombreUsuario,
+            LocalDateTime fechaDesde,
+            LocalDateTime fechaHasta,
+            List<EstadoCompra> estados,
+            boolean nuevo,
+            int page,
+            int size
+    ) throws Exception {
+        try {
+            Pageable pageable;
+            if (nuevo) {
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fechaCompra"));
+            } else {
+                pageable = PageRequest.of(page, size);
+            }
+
+            Specification<Compra> spec = CompraSpecifications.filtrar(
+                    codigoSeguimiento,
+                    nombreUsuario,
+                    fechaDesde,
+                    fechaHasta,
+                    estados
+            );
+
+            Page<Compra> compras = repository.findAll(spec, pageable);
+
+            return new CompraPageDTO(compras.getContent(), page, size, compras.getTotalPages());
+
+        } catch (Exception e) {
+            throw new Exception("Error al buscar compras: " + e.getMessage(), e);
         }
     }
 
