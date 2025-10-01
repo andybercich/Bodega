@@ -103,4 +103,20 @@ public class ImagenController extends BaseController<Imagen,Long, ImagenReposito
         }
     }
 
+    @GetMapping("/articulo/{idArticulo}")
+    public ResponseEntity<?> getImagenByArticulo(@PathVariable Long idArticulo) {
+        try {
+            Imagen imagen = service.obtenerImagenPorArticulo(idArticulo);
+            if (imagen != null) {
+                return ResponseEntity.ok(imagen);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener imagenes de un producto: " + e.getMessage());
+        }
+    }
+
 }

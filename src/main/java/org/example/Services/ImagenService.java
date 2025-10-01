@@ -55,7 +55,6 @@ public class ImagenService extends BaseService<Imagen,Long, ImagenRepository>{
             Articulo articulo = articuloRepository.findById(articuloId)
                     .orElseThrow(() -> new RuntimeException("Articulo no encontrado"));
 
-
             Imagen imagen = new Imagen();
             imagen.setUrl(dto.getUrl());
             imagen.setAlt(dto.getAlt());
@@ -75,6 +74,14 @@ public class ImagenService extends BaseService<Imagen,Long, ImagenRepository>{
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
             return repository.findByProducto(producto);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Imagen obtenerImagenPorArticulo(Long articuloId) throws Exception{
+        try{
+            return repository.findByArticuloId(articuloId);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
