@@ -11,4 +11,6 @@ public interface ImagenRepository extends BaseRepository<Imagen,Long>{
 
     List<Imagen> findByProducto(Producto producto);
 
+    Imagen findByArticuloId(Long idArticulo);
+
 }

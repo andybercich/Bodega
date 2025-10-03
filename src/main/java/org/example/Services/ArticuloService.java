@@ -1,7 +1,6 @@
 package org.example.Services;
 
 import org.example.Entities.Articulo;
-import org.example.Entities.Imagen;
 import org.example.Repositories.ArticuloRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +29,7 @@ public class ArticuloService extends BaseService<Articulo,Long, ArticuloReposito
             if (articulo.getImagen() != null) {
                 articulo.getImagen().setEstado(true);
             }
+
             return repository.save(articulo);
         }catch (Exception e){
             throw new Exception("Error al activar Articulo: " + e.getMessage());

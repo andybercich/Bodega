@@ -23,6 +23,7 @@ public class Producto extends Base {
 
     private double precio;
 
+    @Column(length = 1000)
     private String descripcion;
 
     private int stock;

@@ -1,5 +1,6 @@
 package org.example.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,11 +19,11 @@ public class Articulo extends Base{
     private String titulo;
 
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String texto;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_imagen")
+    @OneToOne(mappedBy = "articulo")
+    @JsonManagedReference
     private Imagen imagen;
 
     @Column(name = "fecha_creacion", updatable = false)
