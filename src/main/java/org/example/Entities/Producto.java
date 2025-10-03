@@ -56,4 +56,5 @@ public class Producto extends Base {
         this.fechaCreacion = LocalDate.now();
     }
 
+
 }

@@ -2,6 +2,7 @@ package org.example.Services;
 
 
 import org.example.Entities.Base;
+import org.example.Entities.Direccion;
 import org.example.Repositories.BaseRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +107,7 @@ public abstract class BaseService<T extends Base, ID, Repo extends BaseRepositor
         }
 
     }
+
 
 }
 

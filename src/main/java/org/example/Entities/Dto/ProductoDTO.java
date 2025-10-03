@@ -63,7 +63,10 @@ public class ProductoDTO {
         dto.setCantidad(producto.getCantidad());
 
         if (producto.getProductoPadre() != null) {
-            dto.setProductoPadre(ProductoDTO.fromEntity(producto.getProductoPadre()));
+            ProductoDTO padreDto = new ProductoDTO();
+            padreDto.setId(producto.getProductoPadre().getId());
+            padreDto.setNombre(producto.getProductoPadre().getNombre());
+            dto.setProductoPadre(padreDto);
         }
 
         if (producto.getDescuento() != null) {

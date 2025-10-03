@@ -2,9 +2,7 @@ package org.example.Controllers;
 
 import jakarta.validation.Valid;
 import org.example.Entities.Categoria;
-import org.example.Entities.Dto.CreateAdminDTO;
-import org.example.Entities.Dto.LoginDTO;
-import org.example.Entities.Dto.UpdateUserDTO;
+import org.example.Entities.Dto.*;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Entities.UsuariosNuevos;
@@ -136,6 +134,18 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al actualizar user desde Admin: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/dataUser/{idUser}")
+    public ResponseEntity<?> updateDataUser(@RequestBody @Valid DataUser dataUser, @PathVariable Long idUser){
+        try {
+            UsuarioDTO updateUser = service.updateDataUser(idUser, dataUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updateUser);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al modificar data User: " + e.getMessage());
         }
     }
 

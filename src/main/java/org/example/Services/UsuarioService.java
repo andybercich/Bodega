@@ -1,9 +1,6 @@
 package org.example.Services;
 
-import org.example.Entities.Dto.LoginDTO;
-import org.example.Entities.Dto.ProductoDTO;
-import org.example.Entities.Dto.CreateAdminDTO;
-import org.example.Entities.Dto.UpdateUserDTO;
+import org.example.Entities.Dto.*;
 import org.example.Entities.Enum.Rol;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
@@ -213,5 +210,14 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
                     throw new Exception("Error al actualizar usuario desde admin: " + e.getMessage());
 
         }
+    }
+
+    public UsuarioDTO updateDataUser(Long idUser, DataUser dataUser){
+        if (!repository.existsById(idUser)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado");
+        }
+        Usuario usuario = repository.getReferenceById(idUser);
+        usuario.setDni(dataUser.getDni());usuario.setNombre(dataUser.getNombre());
+        return UsuarioDTO.fromEntity(repository.saveAndFlush(usuario));
     }
 }
