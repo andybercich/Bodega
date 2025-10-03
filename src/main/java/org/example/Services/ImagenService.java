@@ -33,8 +33,8 @@ public class ImagenService extends BaseService<Imagen,Long, ImagenRepository>{
             Producto producto = productoRepository.findById(productoId)
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-            if (producto.getImagenes().size() >= 4) {
-                throw new RuntimeException("El producto ya tiene el máximo de 4 imágenes");
+            if (producto.getImagenes().size() >= 3) {
+                throw new RuntimeException("El producto ya tiene el máximo de 3 imágenes");
             }
 
             Imagen imagen = new Imagen();

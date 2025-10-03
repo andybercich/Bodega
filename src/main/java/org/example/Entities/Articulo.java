@@ -19,7 +19,7 @@ public class Articulo extends Base{
     private String titulo;
 
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String texto;
 
     @OneToOne(mappedBy = "articulo")
