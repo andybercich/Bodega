@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -93,5 +95,20 @@ public class DescuentoService extends BaseService<Descuento,Long, DescuentoRepos
     }
 
 
+    public BigDecimal calcularPrecioFinal(String codigoProducto) {
+        Producto producto = productoRepository.findByCodigo(codigoProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        double precioBase = producto.getPrecio();
+        Descuento descuento = producto.getDescuento();
+
+        if (descuento != null && descuento.isValid()) {
+            double porcentaje = descuento.getValor() / 100.0;
+            double precioFinal = precioBase - (precioBase * porcentaje);
+            return BigDecimal.valueOf(precioFinal).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return BigDecimal.valueOf(precioBase);
+    }
 
 }

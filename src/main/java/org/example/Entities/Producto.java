@@ -17,6 +17,7 @@ import java.util.List;
 @Table(name="productos")
 public class Producto extends Base {
 
+    @Column(unique = true)
     private String codigo;
 
     private String nombre;

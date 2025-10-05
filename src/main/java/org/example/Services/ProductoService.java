@@ -31,6 +31,30 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         }
     }
 
+
+    @Override
+    public Producto update(Long id, Producto producto) throws Exception {
+        try {
+            Producto productoFind = repository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + id));
+
+            if (producto.getNombre() != null) productoFind.setNombre(producto.getNombre());
+            if (producto.getCodigo() != null) productoFind.setCodigo(producto.getCodigo());
+            if (producto.getDescripcion() != null) productoFind.setDescripcion(producto.getDescripcion());
+            if (producto.getPrecio() != 0) productoFind.setPrecio(producto.getPrecio());
+            if (producto.getStock() != 0) productoFind.setStock(producto.getStock());
+            if (producto.getCategoria() != null) productoFind.setCategoria(producto.getCategoria());
+            productoFind.setCantidad(producto.getCantidad());
+            productoFind.setDestacado(producto.isDestacado());
+
+
+            return repository.save(productoFind);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar producto: " + e.getMessage());
+        }
+    }
+
+
     @Transactional
     public Producto quitarDescuento(Long productoId) throws Exception {
         try{
