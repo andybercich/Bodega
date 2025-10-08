@@ -1,1 +1,3 @@
 471 = Usuario ya resgistrado
+
+450 = No se puede aplicar codigo descuento

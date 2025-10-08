@@ -1,7 +1,7 @@
 package org.example.Entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,19 +22,29 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class CodigoDescuento extends Base {
 
+    @NotBlank(message = "El código de descuento no puede estar vacío")
+    @Size(min = 4, max = 15, message = "El código de descuento debe tener entre 4 y 15 caracteres")
     private String codigo;
+
+    @NotNull(message = "La fecha de inicio es obligatoria")
     private LocalDate fechaInicio;
+
+    @NotNull(message = "La fecha de fin es obligatoria")
     private LocalDate fechaFin;
 
+    @PositiveOrZero(message = "El tope debe ser mayor o igual a 0")
     private double tope;
 
+    @PositiveOrZero(message = "El límite usado no puede ser negativo")
     private int limiteUsado;
 
+    @DecimalMin(value = "0.0", inclusive = false, message = "El porcentaje de descuento debe ser mayor a 0")
+    @DecimalMax(value = "100.0", message = "El porcentaje de descuento no puede superar el 100%")
     private double porcentajeDescuento;
 
+    @NotNull(message = "El tipo de código es obligatorio")
     @Enumerated(EnumType.STRING)
     private TipoCodigo tipoCodigo;
-
     @ManyToOne
     private Usuario usuarioAsignado;
 

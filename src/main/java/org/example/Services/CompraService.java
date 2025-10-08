@@ -32,51 +32,35 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private CodigoDescuentoService codigoDescuentoService;
+
     @Override
     @Transactional
     public Compra save(Compra orden) {
         try {
-            /*Usuario user = usuarioRepository.findByMail(
-                    SecurityContextHolder.getContext().getAuthentication().getName()
-            ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));*/
 
-            //orden.setUsuario(user);
-/*
-            if (!orden.isDireccionUsuario()) {
-                direccionService.saveToken(orden.getDireccion());
-            } else {
-                boolean direccionValida = user.getDirecciones().stream()
-                        .anyMatch(d -> d.getId().equals(orden.getDireccion().getId()));
-                if (!direccionValida) {
-                    throw new RuntimeException("La dirección no pertenece al usuario");
-                }
-            }
-            System.out.println(orden.getDetalles());*/
-            System.out.println("estoy");
+            /*Usuario user = usuarioRepository.findByMail( SecurityContextHolder.getContext().getAuthentication().getName() ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));*/ //orden.setUsuario(user); /* if (!orden.isDireccionUsuario()) { direccionService.saveToken(orden.getDireccion()); } else { boolean direccionValida = user.getDirecciones().stream() .anyMatch(d -> d.getId().equals(orden.getDireccion().getId())); if (!direccionValida) { throw new RuntimeException("La dirección no pertenece al usuario"); } } System.out.println(orden.getDetalles());*/
+
             for (DetalleCompra d : orden.getDetalles()) {
                 Producto producto = productoRepository.getReferenceById(d.getProducto().getId());
-                System.out.println(ProductoDTO.fromEntity(producto));
 
-                if (producto.getProductoPadre() != null){
+                if (producto.getProductoPadre() != null) {
                     Producto productoPadre = producto.getProductoPadre();
-
-                    if (productoPadre.getStock() < d.getCantidad()*d.getProducto().getCantidad()) {
+                    if (productoPadre.getStock() < d.getCantidad() * d.getProducto().getCantidad()) {
                         throw new RuntimeException("No hay stock suficiente para el producto: " + productoPadre.getNombre());
-                    }else{
-                        productoPadre.setStock(productoPadre.getStock()-(d.getCantidad()*d.getProducto().getCantidad()));
-                        productoRepository.saveAndFlush(productoPadre);
                     }
-                }else{
+                    productoPadre.setStock(productoPadre.getStock() - (d.getCantidad() * d.getProducto().getCantidad()));
+                    productoRepository.saveAndFlush(productoPadre);
+                } else {
                     if (producto.getStock() < d.getCantidad()) {
                         throw new RuntimeException("No hay stock suficiente para el producto: " + producto.getNombre());
-                    }else{
-                        producto.setStock(producto.getStock()-d.getCantidad());
-                        productoRepository.saveAndFlush(producto);
                     }
+                    producto.setStock(producto.getStock() - d.getCantidad());
+                    productoRepository.saveAndFlush(producto);
                 }
 
                 BigDecimal precioOriginal = BigDecimal.valueOf(producto.getPrecio());
-
                 if (producto.getDescuento() != null && producto.getDescuento().isValid()) {
                     BigDecimal porcentaje = BigDecimal.valueOf(producto.getDescuento().getValor());
                     BigDecimal montoDescuento = precioOriginal.multiply(porcentaje).divide(BigDecimal.valueOf(100));
@@ -84,24 +68,24 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
                 }
 
                 d.setPrecioUnitario(precioOriginal);
-
                 d.setProducto(producto);
                 d.setCompra(orden);
-                System.out.println("dentro 2");
-
             }
-            System.out.println("dentro 3");
 
-            //orden.setUsuario(user);
             orden.setFechaCompra(LocalDateTime.now());
-           /* System.out.println(OrdenCompraDTO.fromEntity(orden));
-            for (OrdenCompraDetalle d : orden.getDetalles()) {
-                Detalle detalle = d.getDetalle();
-                detalle.setStock(detalle.getStock() - d.getCantidad());
-                detalleRepository.save(detalle);
 
-            }*/
-            System.out.println("dentro 4");
+            if (orden.getCodigoDescuento() != null) {
+                Usuario usuario = orden.getUsuario();
+                AplicarCodigo resultado = codigoDescuentoService.aplicarCodigo(
+                        orden.getCodigoDescuento().getCodigo(),
+                        usuario
+                );
+
+                if (!resultado.isValido()) {
+                    throw new RuntimeException("El código de descuento no puede ser aplicado.");
+                }
+            }
+
             orden.calcularTotal();
 
             return repository.save(orden);
@@ -111,6 +95,7 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
             throw new RuntimeException("Error al guardar la orden de compra: " + e.getMessage(), e);
         }
     }
+
 
     @Transactional
     @Override

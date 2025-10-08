@@ -9,4 +9,8 @@ public class AplicarCodigo {
     private boolean valido;
 
     private double porcentajeDescuento;
+
+    private double tope;
+
+    private Long idCodigo;
 }
