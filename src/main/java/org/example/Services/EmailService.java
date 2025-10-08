@@ -2,27 +2,29 @@ package org.example.Services;
 
 import jakarta.mail.internet.MimeMessage;
 import org.example.Entities.Compra;
-import org.example.Entities.Dto.CompraDTO;
-import org.example.Entities.Dto.ProblemFormDTO;
-import org.example.Entities.Dto.UsuarioDTO;
+import org.example.Entities.Enum.EstadoCompra;
 import org.example.Entities.Usuario;
 import org.example.Repositories.CompraRepository;
 import org.example.Repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private final CompraRepository compraRepository;
+
+    @Autowired
+    private final UsuarioRepository usuarioRepository;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -33,8 +35,12 @@ public class EmailService {
     @Autowired
     private UsuarioRepository userRepository;
 
-    @Autowired
-    private CompraRepository compraRepository;
+
+    public EmailService(CompraRepository compraRepository, UsuarioRepository usuarioRepository) {
+        this.compraRepository = compraRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
+
 
     @Async
     public void sendEmailAsync(String subject, String body, String replyTo) throws Exception {
@@ -69,4 +75,35 @@ public class EmailService {
 
 
     }
+
+    @Async
+    public void sendEmailChangeState(Long pedidoId, Long idUser, EstadoCompra newState) throws Exception {
+        Compra pedido = compraRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("No se encontró el pedido: " + pedidoId));
+
+        Usuario usuario = usuarioRepository.findById(idUser)
+                .orElseThrow(()-> new RuntimeException("No se encontro el ususario: "+idUser));
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(usuario.getMail());
+        message.setSubject("Actualización de tu pedido - Bodega Tierra Noble");
+
+        StringBuilder texto = new StringBuilder();
+        texto.append("Hola ").append(usuario.getNombre()).append(",\n\n");
+        texto.append("Te informamos que tu pedido ID: " + pedido.getId() +" ha avanzado.\n\n");
+
+        texto.append("Estado actual: ").append(newState).append("\n");
+
+        if (newState == EstadoCompra.ENVIANDO || newState == EstadoCompra.COMPLETADO) {
+            texto.append("Código de seguimiento: ").append(pedido.getCodigoSeguimiento()).append("\n");
+        }
+
+        texto.append("\nSi tenés alguna consulta, podés contactarnos respondiendo a este correo.\n\n");
+        texto.append("¡Gracias por confiar en Bodega Tierra Noble!");
+
+        message.setText(texto.toString());
+
+        mailSender.send(message);
+    }
+
 }

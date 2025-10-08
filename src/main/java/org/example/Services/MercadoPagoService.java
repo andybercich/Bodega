@@ -2,6 +2,7 @@ package org.example.Services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.Entities.Dto.ItemRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,13 +11,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 public class MercadoPagoService {
+
+    @Autowired
+    private final DescuentoService descuentoService;
 
     //token de prueba para crear preferencias
     @Value("${mercadopago.test-access-token}")
@@ -31,6 +33,10 @@ public class MercadoPagoService {
     //sirve para convertir mapas o objetos a JSON antes de enviarlos en la petición
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public MercadoPagoService(DescuentoService descuentoService) {
+        this.descuentoService = descuentoService;
+    }
+
     //Recibe una lista de productos (items) y el email del comprador.
     public String crearPreferencia(List<ItemRequest> items, String email) {
         try {
@@ -44,12 +50,28 @@ public class MercadoPagoService {
             // Construir lista de items
             List<Map<String, Object>> itemsList = new ArrayList<>();
 
-            //Para cada producto (ItemRequest) creamos un mapa con los datos que Mercado Pago necesita
+            //guarda cuantas unidades de cada producto hay en total
+            Map<String, Integer> cantidadPorCodigo = new HashMap<>();
+
+            //guarda una copia del producto original para tener el title
+            Map<String, ItemRequest> itemPorCodigo = new HashMap<>();
+
+            //si ya hay cantidad, suma la nueva cantidad; si no, pone la primera.
             for (ItemRequest item : items) {
+                cantidadPorCodigo.put(item.getCodigo(),
+                        cantidadPorCodigo.getOrDefault(item.getCodigo(), 0) + item.getQuantity());
+                itemPorCodigo.putIfAbsent(item.getCodigo(), item); //guarda solo el primer item que aparece con ese código
+            }
+
+            for (String codigo : cantidadPorCodigo.keySet()) {
+                ItemRequest item = itemPorCodigo.get(codigo);
+                int cantidad = cantidadPorCodigo.get(codigo);
+                BigDecimal precioFinal = descuentoService.calcularPrecioFinal(codigo);
+
                 Map<String, Object> map = new HashMap<>();
-                map.put("title", item.getTitle());
-                map.put("quantity", item.getQuantity());
-                map.put("unit_price", item.getUnitPrice());
+                map.put("title", item.getTitle() + (cantidad > 1 ? " x" + cantidad : ""));
+                map.put("quantity", cantidad);
+                map.put("unit_price", precioFinal);
                 map.put("picture_url", item.getPicture_url());
                 map.put("currency_id", "ARS");
                 itemsList.add(map);
@@ -80,8 +102,6 @@ public class MercadoPagoService {
                     headers
             );
 
-            System.out.println(objectMapper.writeValueAsString(payload));
-
             //Llamamos a la API de mp
             ResponseEntity<Map> response = restTemplate.exchange( //La respuesta viene como un Map JSON.
                     "https://api.mercadopago.com/checkout/preferences",
@@ -89,7 +109,6 @@ public class MercadoPagoService {
                     request,
                     Map.class //Cada clave del JSON se convierte en la clave del Map y cada valor en el valor del Map.
             );
-
 
             //response.getBody() devuelve el JSON que Mercado Pago te respondió, convertido automáticamente a un Map.
             Map<String, Object> responseBody = response.getBody();

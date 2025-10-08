@@ -1,5 +1,6 @@
 package org.example.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -35,6 +36,7 @@ public class Direccion extends Base{
             joinColumns = @JoinColumn(name = "direccion_id"),
             inverseJoinColumns = @JoinColumn(name = "usuario")
     )
+    @JsonIgnore
     private List<Usuario> usuarios = new ArrayList<>();
 
 

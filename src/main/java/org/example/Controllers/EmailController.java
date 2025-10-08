@@ -3,7 +3,7 @@ package org.example.Controllers;
 import org.example.Entities.Compra;
 import org.example.Entities.Dto.ContactFormDTO;
 import org.example.Entities.Dto.ProblemFormDTO;
-import org.example.Entities.Dto.UsuarioDTO;
+import org.example.Entities.Enum.EstadoCompra;
 import org.example.Entities.Usuario;
 import org.example.Repositories.CompraRepository;
 import org.example.Repositories.UsuarioRepository;
@@ -43,7 +43,6 @@ public class EmailController {
         }
     }
 
-
     @PostMapping("/problem")
     public ResponseEntity<?> sendPedidoProblema (@RequestBody ProblemFormDTO form){
         try {
@@ -68,7 +67,22 @@ public class EmailController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al mandar el mail con problema: " + e.getMessage());
         }
+    }
 
+    @PostMapping("/pedido/{idPedido}")
+    public ResponseEntity<String> sendEmailChangeState(
+            @PathVariable Long idPedido,
+            @RequestParam("idUser") Long idUser,
+                @RequestParam("newState") EstadoCompra newState) {
+        try {
+            emailService.sendEmailChangeState(idPedido,idUser,newState);
+            return ResponseEntity.ok("Mensaje enviado correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al mandar el mail: " + e.getMessage());
+        }
     }
 
 }
+
+
