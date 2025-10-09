@@ -1,5 +1,6 @@
 package org.example.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -45,6 +46,7 @@ public class CodigoDescuento extends Base {
     @NotNull(message = "El tipo de código es obligatorio")
     @Enumerated(EnumType.STRING)
     private TipoCodigo tipoCodigo;
+
     @ManyToOne
     private Usuario usuarioAsignado;
 
