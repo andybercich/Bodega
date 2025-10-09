@@ -1,9 +1,13 @@
 package org.example.Services;
 
 import org.example.Entities.AplicarCodigo;
+import org.example.Entities.Categoria;
 import org.example.Entities.CodigoDescuento;
 import org.example.Entities.Usuario;
 import org.example.Repositories.CodigoDescuentoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -81,6 +85,14 @@ public class CodigoDescuentoService extends BaseService<CodigoDescuento, Long, C
     }
 
 
+    public Page<CodigoDescuento> getCodigosDescuentosPaginados(int page, int size) throws Exception {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return repository.findAll(pageable);
+        }catch (Exception e){
+            throw new Exception("Error al obtener códigos de descuento paginados: " + e.getMessage());
+        }
+    }
 
 
 }
