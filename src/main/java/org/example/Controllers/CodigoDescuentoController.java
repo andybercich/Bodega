@@ -28,7 +28,7 @@ public class CodigoDescuentoController extends BaseController<CodigoDescuento, L
 
 
     @PostMapping("/aplicarCodigo")
-    public ResponseEntity<?> aplicarCodigo(@RequestBody EnvioCodigoDescuento envioCodigoDescuento) {
+    public ResponseEntity<?> validarCodigo(@RequestBody EnvioCodigoDescuento envioCodigoDescuento) {
 
         try {
 
@@ -41,7 +41,7 @@ public class CodigoDescuentoController extends BaseController<CodigoDescuento, L
                         .body("Este usuario no existe");
             }
 
-            AplicarCodigo aplicarCodigo = service.aplicarCodigo(envioCodigoDescuento.getCodigoDescuento(), usuario);
+            AplicarCodigo aplicarCodigo = service.validarCodigo(envioCodigoDescuento.getCodigoDescuento(), usuario);
 
             if (aplicarCodigo.getPorcentajeDescuento() == 0.0 || !aplicarCodigo.isValido() ){
                 return ResponseEntity.status(450).body("Este codigo descuento no puede ser aplicado");
