@@ -51,7 +51,7 @@ public abstract class BaseService<T extends Base, ID, Repo extends BaseRepositor
             T existingEntity = repository.findById(id)
                     .orElseThrow(() -> new Exception("Entity not found"));
 
-            BeanUtils.copyProperties(entity, existingEntity, "id");
+            BeanUtils.copyProperties(entity, existingEntity, "id", "estado");
 
             return repository.saveAndFlush(existingEntity);
 
@@ -88,7 +88,7 @@ public abstract class BaseService<T extends Base, ID, Repo extends BaseRepositor
             T existingEntity = repository.findById(id)
                     .orElseThrow(() -> new Exception("Entity not found"));
             existingEntity.setEstado(true);
-            return existingEntity;
+            return repository.saveAndFlush(existingEntity);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -101,7 +101,7 @@ public abstract class BaseService<T extends Base, ID, Repo extends BaseRepositor
                     .orElseThrow(() -> new Exception("Entity not found"));
             existingEntity.setEstado(false);
             ;
-            return existingEntity;
+            return repository.saveAndFlush(existingEntity);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
