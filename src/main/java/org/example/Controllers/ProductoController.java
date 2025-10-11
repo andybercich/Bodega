@@ -2,6 +2,7 @@ package org.example.Controllers;
 
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
+import org.example.Entities.Enum.EstadoProducto;
 import org.example.Entities.Producto;
 import org.example.Repositories.ProductoRepository;
 import org.example.Services.DescuentoService;
@@ -109,7 +110,8 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
             @RequestParam(required = false) Boolean conDescuento,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false)EstadoProducto estado
     ) {
         try {
             ProductoPageDTO resultado = service.buscarProductos(
@@ -126,7 +128,50 @@ public class ProductoController extends BaseController<Producto,Long, ProductoRe
                     conDescuento,
                     keyword,
                     page,
-                    size
+                    size,
+                    estado
+            );
+
+            return ResponseEntity.ok(resultado);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
+    @GetMapping("/searchFather")
+    public ResponseEntity<ProductoPageDTO> getFilteredFather(
+            @RequestParam(required = false) boolean nuevo,
+            @RequestParam(required = false) Integer stockMin,
+            @RequestParam(required = false) Integer stockMax,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Boolean conPadre,
+            @RequestParam(required = false) List<Long> categorias,
+            @RequestParam(required = false, defaultValue = "true") Boolean destacado,
+            @RequestParam(required = false) Boolean conDescuento,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false)EstadoProducto estado
+    ) {
+        try {
+            ProductoPageDTO resultado = service.buscarProductosPadre(
+                    nuevo,
+                    stockMin,
+                    stockMax,
+                    fechaDesde,
+                    fechaHasta,
+                    conPadre,
+                    categorias,
+                    destacado,
+                    conDescuento,
+                    keyword,
+                    page,
+                    size,
+                    estado
             );
 
             return ResponseEntity.ok(resultado);

@@ -2,6 +2,7 @@ package org.example.Services;
 
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Dto.ProductoPageDTO;
+import org.example.Entities.Enum.EstadoProducto;
 import org.example.Entities.EspecificationsSearch.ProductoSpecifications;
 import org.example.Entities.Producto;
 import org.example.Repositories.ProductoRepository;
@@ -103,7 +104,8 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
             Boolean conDescuento,
             String keyword,
             int page,
-            int size
+            int size,
+            EstadoProducto estadoProducto
     ) throws Exception{
         try {
             Pageable pageable;
@@ -135,6 +137,57 @@ public class ProductoService extends BaseService<Producto,Long, ProductoReposito
         );
         Page<Producto> productos = repository.findAll(spec, pageable);
         return new ProductoPageDTO(productos.getContent(), page, size, productos.getTotalPages());
+
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+
+    public ProductoPageDTO buscarProductosPadre(
+            boolean nuevo,
+            Integer stockMin,
+            Integer stockMax,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Boolean conPadre,
+            List<Long> categorias,
+            Boolean destacado,
+            Boolean conDescuento,
+            String keyword,
+            int page,
+            int size,
+            EstadoProducto estadoProducto
+    ) throws Exception{
+        try {
+            Pageable pageable;
+            if (nuevo){
+                pageable = PageRequest.of(
+                        page,
+                        size,
+                        Sort.by(Sort.Direction.DESC, "fechaCreacion")
+                );
+            }else{
+                pageable = PageRequest.of(
+                        page,
+                        size);
+            }
+
+
+            Specification<Producto> spec = ProductoSpecifications.filtrarPadre(
+                    stockMin,
+                    stockMax,
+                    fechaDesde,
+                    fechaHasta,
+                    conPadre,
+                    categorias,
+                    destacado,
+                    conDescuento,
+                    keyword,
+                    estadoProducto
+            );
+            Page<Producto> productos = repository.findAll(spec, pageable);
+            return new ProductoPageDTO(productos.getContent(), page, size, productos.getTotalPages());
 
         }catch (Exception e){
             throw new Exception(e.getMessage());
