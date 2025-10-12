@@ -1,7 +1,10 @@
 package org.example.Services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.Entities.CodigoDescuento;
+import org.example.Entities.Descuento;
 import org.example.Entities.Dto.ItemRequest;
+import org.example.Entities.Dto.PagoRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,6 +23,9 @@ public class MercadoPagoService {
     @Autowired
     private final DescuentoService descuentoService;
 
+    @Autowired
+    private CodigoDescuentoService codigoDescuentoService;
+
     //token de prueba para crear preferencias
     @Value("${mercadopago.test-access-token}")
     private String accessToken;
@@ -36,13 +42,16 @@ public class MercadoPagoService {
     public MercadoPagoService(DescuentoService descuentoService) {
         this.descuentoService = descuentoService;
     }
-
     //Recibe una lista de productos (items) y el email del comprador.
-    public String crearPreferencia(List<ItemRequest> items, String email) {
+    public String crearPreferencia(PagoRequest request ) {
         try {
+            CodigoDescuento codigoDescuento = null;
+            if (request.getIdCodigo() != null){
+                codigoDescuento = codigoDescuentoService.findById(request.getIdCodigo());
+            }
 
             //Si no hay productos, no hacemos nada y retornamos null.
-            if (items == null || items.isEmpty()) return null;
+            if (request.getItems() == null || request.getItems().isEmpty()) return null;
 
             //es un mapa que representará el JSON que se enviará a Mercado Pago.
             Map<String, Object> payload = new HashMap<>();
@@ -57,16 +66,21 @@ public class MercadoPagoService {
             Map<String, ItemRequest> itemPorCodigo = new HashMap<>();
 
             //si ya hay cantidad, suma la nueva cantidad; si no, pone la primera.
-            for (ItemRequest item : items) {
+            for (ItemRequest item : request.getItems()) {
                 cantidadPorCodigo.put(item.getCodigo(),
                         cantidadPorCodigo.getOrDefault(item.getCodigo(), 0) + item.getQuantity());
                 itemPorCodigo.putIfAbsent(item.getCodigo(), item); //guarda solo el primer item que aparece con ese código
             }
 
+            BigDecimal total = BigDecimal.ZERO; //guardará el total sin descuentos
+
             for (String codigo : cantidadPorCodigo.keySet()) {
                 ItemRequest item = itemPorCodigo.get(codigo);
                 int cantidad = cantidadPorCodigo.get(codigo);
                 BigDecimal precioFinal = descuentoService.calcularPrecioFinal(codigo);
+
+                BigDecimal subtotal = precioFinal.multiply(BigDecimal.valueOf(cantidad));
+                total = total.add(subtotal); //sumamos al total general
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("title", item.getTitle() + (cantidad > 1 ? " x" + cantidad : ""));
@@ -77,9 +91,30 @@ public class MercadoPagoService {
                 itemsList.add(map);
             }
 
+            //💸 Si existe un código de descuento, se aplica al total
+            if (codigoDescuento != null) {
+                double porcentaje = codigoDescuento.getPorcentajeDescuento() / 100.0; //porcentaje de descuento
+                BigDecimal descuento = total.multiply(BigDecimal.valueOf(porcentaje)); //monto total a descontar
+
+                //Aplicamos el tope máximo definido en el código
+                BigDecimal tope = BigDecimal.valueOf(codigoDescuento.getTope());
+                if (descuento.compareTo(tope) > 0) {
+                    descuento = tope;
+                }
+
+                //Se agrega un ítem negativo a Mercado Pago para reflejar el descuento
+                Map<String, Object> descuentoItem = new HashMap<>();
+                descuentoItem.put("title", "Descuento aplicado (" + codigoDescuento.getCodigo() + ")");
+                descuentoItem.put("quantity", 1);
+                descuentoItem.put("unit_price", descuento.negate()); //el monto se pasa como negativo
+                descuentoItem.put("currency_id", "ARS");
+                itemsList.add(descuentoItem);
+
+            }
+
             //Luego agregamos la lista de productos y el email del comprador al payload.
             payload.put("items", itemsList);
-            payload.put("payer", Map.of("email", email));
+            payload.put("payer", Map.of("email", request.getEmail()));
 
             //Configuramos rutas de redirección
             Map<String, String> backUrls = new HashMap<>();
@@ -87,6 +122,16 @@ public class MercadoPagoService {
             backUrls.put("failure", urlBase + "/failed-payment");
             backUrls.put("pending", urlBase + "/pending-payment");
 
+            // Cambiar una vez desplegado para avisarnos del pago
+            payload.put("notification_url", "https://tuservidor.com/api/mercadopago/webhook");
+
+
+
+
+
+
+            //Referencia externa para luego cambiar estado del pedido cunado nos avise mp
+            payload.put("external_reference", request.getIdPedido().toString());
             payload.put("back_urls", backUrls); ////URLs a las que Mercado Pago redirige al usuario después del pago.
             payload.put("auto_return", "approved"); //si el pago es exitoso, redirecciona automáticamente al usuario.
 
@@ -97,7 +142,7 @@ public class MercadoPagoService {
 
             //Convertimos el payload a JSON
             //HttpEntity combina cuerpo + headers para enviarlo en la petición.
-            HttpEntity<String> request = new HttpEntity<>(
+            HttpEntity<String> requestResponse = new HttpEntity<>(
                     objectMapper.writeValueAsString(payload),
                     headers
             );
@@ -106,7 +151,7 @@ public class MercadoPagoService {
             ResponseEntity<Map> response = restTemplate.exchange( //La respuesta viene como un Map JSON.
                     "https://api.mercadopago.com/checkout/preferences",
                     HttpMethod.POST,
-                    request,
+                    requestResponse,
                     Map.class //Cada clave del JSON se convierte en la clave del Map y cada valor en el valor del Map.
             );
 
@@ -121,8 +166,8 @@ public class MercadoPagoService {
             e.printStackTrace();
             return null;
         }
-
     }
+
 
         /*Recibe el ID de un pago que ya fue generado en Mercado Pago.
         Hace una llamada GET a la API de Mercado Pago para obtener información detallada sobre ese pago.

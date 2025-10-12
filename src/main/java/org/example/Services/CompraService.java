@@ -243,4 +243,33 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
         }
     }
 
+    public boolean confirmarPago (Long idCompra){
+
+        if (!repository.existsById(idCompra)){
+            throw new RuntimeException("NO EXISTE UNA COMPRA CON ESE ID");
+        }
+
+        Compra compra = repository.findById(idCompra).orElseThrow();
+
+        compra.setEstadoCompra(EstadoCompra.PREPARANDO);
+
+        repository.saveAndFlush(compra);
+        return true;
+
+
+    }
+
+    public int eliminarComprasCanceladas() {
+        LocalDateTime ahora = LocalDateTime.now();
+
+        LocalDateTime limite = ahora.minusDays(3);
+
+        int eliminadas = repository.deleteByEstadoCompraAndFechaCompraBefore(
+                EstadoCompra.CANCELADA, limite
+        );
+
+        System.out.println("Compras canceladas eliminadas: " + eliminadas);
+        return eliminadas;
+    }
+
 }

@@ -23,7 +23,7 @@ public class MercadoPagoController {
 
        //Se llama a tu service y se le pasan los items y el email que vienen del frontend.
         //Devuelve initPoint → la URL donde el usuario hará el pago.
-        String initPoint = mercadoPagoService.crearPreferencia(request.getItems(), request.getEmail());
+        String initPoint = mercadoPagoService.crearPreferencia(request);
 
         if (initPoint == null) {
             //Si algo falla y no se pudo crear la preferencia, devolvemos un 400 Bad Request con un JSON de error.

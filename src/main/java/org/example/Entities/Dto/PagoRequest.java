@@ -7,4 +7,6 @@ import java.util.List;
 public class PagoRequest {
     private List<ItemRequest> items;
     private String email;
+    private Long idCodigo;
+    private Long idPedido;
 }
