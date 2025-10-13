@@ -41,9 +41,18 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
     public Compra save(Compra orden) {
         try {
 
-            Usuario user = usuarioRepository.findByMail( SecurityContextHolder.getContext().getAuthentication().getName() ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-            if ( !user.getDirecciones().contains(orden.getDireccionEnvio())) {
-                throw new RuntimeException("El usuario no tiene asociada esta direccion indicada en la orden");
+
+
+            Usuario user = usuarioRepository.findByMail(
+                    SecurityContextHolder.getContext().getAuthentication().getName()
+            ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+// Verifica si la dirección pertenece al usuario por ID
+            boolean direccionAsociada = user.getDirecciones().stream()
+                    .anyMatch(d -> d.getId().equals(orden.getDireccionEnvio().getId()));
+
+            if (!direccionAsociada) {
+                throw new RuntimeException("El usuario no tiene asociada esta dirección indicada en la orden");
             }
 
 
