@@ -16,12 +16,11 @@ public class DireccionController extends BaseController<Direccion, Long,Direccio
         super(service);
     }
 
-    @PostMapping("/save/{usuarioId}")
+    @PostMapping("/save")
     public ResponseEntity<?> create(
-            @PathVariable Long usuarioId,
             @RequestBody Direccion direccion) {
         try {
-            Direccion nueva = service.save(direccion, usuarioId);
+            Direccion nueva = service.save(direccion);
             return ResponseEntity.ok(nueva);
         } catch (Exception e) {
             return ResponseEntity
@@ -30,13 +29,12 @@ public class DireccionController extends BaseController<Direccion, Long,Direccio
         }
     }
 
-    @PutMapping("/update/{direccionId}/usuario/{usuarioId}")
+    @PutMapping("/update/{direccionId}")
     public ResponseEntity<?> actualizarDireccion(
             @PathVariable Long direccionId,
-            @PathVariable Long usuarioId,
             @RequestBody Direccion direccion) {
         try {
-            Direccion actualizada = service.update(direccionId, direccion, usuarioId);
+            Direccion actualizada = service.update(direccionId, direccion);
             return ResponseEntity.ok(actualizada);
         } catch (Exception e) {
             return ResponseEntity

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,7 +41,11 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
     public Compra save(Compra orden) {
         try {
 
-            /*Usuario user = usuarioRepository.findByMail( SecurityContextHolder.getContext().getAuthentication().getName() ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));*/ //orden.setUsuario(user); /* if (!orden.isDireccionUsuario()) { direccionService.saveToken(orden.getDireccion()); } else { boolean direccionValida = user.getDirecciones().stream() .anyMatch(d -> d.getId().equals(orden.getDireccion().getId())); if (!direccionValida) { throw new RuntimeException("La dirección no pertenece al usuario"); } } System.out.println(orden.getDetalles());*/
+            Usuario user = usuarioRepository.findByMail( SecurityContextHolder.getContext().getAuthentication().getName() ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            if ( !user.getDirecciones().contains(orden.getDireccionEnvio())) {
+                throw new RuntimeException("El usuario no tiene asociada esta direccion indicada en la orden");
+            }
+
 
             for (DetalleCompra d : orden.getDetalles()) {
                 Producto producto = productoRepository.getReferenceById(d.getProducto().getId());
@@ -73,6 +78,8 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
             }
 
             orden.setFechaCompra(LocalDateTime.now());
+            orden.setUsuario(user);
+            orden.setEstadoCompra(EstadoCompra.PAGOPENDIENTE);
 
             if (orden.getCodigoDescuento() != null) {
                 Usuario usuario = orden.getUsuario();
@@ -197,14 +204,18 @@ public class CompraService extends BaseService<Compra, Long, CompraRepository>{
         }
     }
 
-    public List<Compra> getByIdUser(Long id){
+    public List<Compra> getByIdUser(){
+        Usuario user = usuarioRepository.findByMail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado"));
 
 
-        if (!usuarioRepository.existsById(id)){
+
+        if (!usuarioRepository.existsById(user.getId())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El id usuario no existe");
         }
 
-        return repository.findByUsuarioId(id);
+        return repository.findByUsuarioId(user.getId());
 
     }
 

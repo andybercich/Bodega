@@ -1,11 +1,8 @@
 package org.example.Controllers;
 
 import jakarta.validation.Valid;
-import org.example.Entities.Categoria;
+import org.example.Entities.*;
 import org.example.Entities.Dto.*;
-import org.example.Entities.Producto;
-import org.example.Entities.Usuario;
-import org.example.Entities.UsuariosNuevos;
 import org.example.Repositories.UsuarioRepository;
 import org.example.Services.DTO.ValidacionDTO;
 import org.example.Services.UsuarioService;
@@ -44,7 +41,7 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
     public ResponseEntity<?> validarMail(@RequestBody @Valid  ValidacionDTO validacionDTO) {
 
 
-            Usuario newUser = service.validarCodigoYRegistrar(validacionDTO);
+            AuthResponse newUser = service.validarCodigoYRegistrar(validacionDTO);
 
             return ResponseEntity.ok(newUser);
 
@@ -54,17 +51,17 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
     public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
 
 
-        Usuario usuario = service.login(loginDTO);
+        AuthResponse datosUsuario = service.login(loginDTO);
 
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(datosUsuario);
 
     }
 
-    @PutMapping("favorite/{idProduct}/{idUser}")
-    public ResponseEntity<?> agregarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
+    @PutMapping("/favorite/{idProduct}")
+    public ResponseEntity<?> agregarFavorito (@PathVariable Long idProduct){
         try {
 
-            return ResponseEntity.ok(service.agregarFavorito(idProduct, idUser));
+            return ResponseEntity.ok(service.agregarFavorito(idProduct));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -72,11 +69,11 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
-    @PutMapping("deleteFavorite/{idProduct}/{idUser}")
-    public ResponseEntity<?> eliminarFavorito (@PathVariable Long idProduct, @PathVariable Long idUser){
+    @PutMapping("/deleteFavorite/{idProduct}")
+    public ResponseEntity<?> eliminarFavorito (@PathVariable Long idProduct){
         try {
 
-            return ResponseEntity.ok(service.eliminarFavorito(idProduct, idUser));
+            return ResponseEntity.ok(service.eliminarFavorito(idProduct));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -84,10 +81,10 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
-    @GetMapping("favorites/{idUser}")
-    public ResponseEntity<?> obtenerFavoritos (@PathVariable Long idUser) {
+    @GetMapping("/favorites")
+    public ResponseEntity<?> obtenerFavoritos () {
         try {
-            return ResponseEntity.ok(service.obtenerFavoritos(idUser));
+            return ResponseEntity.ok(service.obtenerFavoritos());
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -137,10 +134,10 @@ public class UsuarioController extends BaseController<Usuario, Long, UsuarioRepo
         }
     }
 
-    @PutMapping("/dataUser/{idUser}")
-    public ResponseEntity<?> updateDataUser(@RequestBody @Valid DataUser dataUser, @PathVariable Long idUser){
+    @PutMapping("/dataUser")
+    public ResponseEntity<?> updateDataUser(@RequestBody @Valid DataUser dataUser){
         try {
-            UsuarioDTO updateUser = service.updateDataUser(idUser, dataUser);
+            UsuarioDTO updateUser = service.updateDataUser( dataUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(updateUser);
         } catch (Exception e) {
             return ResponseEntity

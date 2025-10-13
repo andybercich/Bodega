@@ -6,7 +6,10 @@ import org.example.Entities.Usuario;
 import org.example.Repositories.DireccionRepository;
 import org.example.Repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -17,25 +20,28 @@ public class DireccionService extends BaseService<Direccion, Long, DireccionRepo
     private UsuarioRepository usuarioRepository;
 
     @Transactional
-    public Direccion save(Direccion direccion, Long usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+    public Direccion save(Direccion direccion) {
+        Usuario user = usuarioRepository.findByMail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado"));
 
-        direccion.getUsuarios().add(usuario);
+        direccion.getUsuarios().add(user);
 
-        usuario.getDirecciones().add(direccion);
+        user.getDirecciones().add(direccion);
 
         return repository.save(direccion);
     }
 
 
     @Transactional
-    public Direccion update(Long direccionId, Direccion nuevaDireccion, Long usuarioId) {
+    public Direccion update(Long direccionId, Direccion nuevaDireccion) {
         Direccion direccionExistente = repository.findById(direccionId)
                 .orElseThrow(() -> new RuntimeException("Dirección no encontrada con id: " + direccionId));
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+        Usuario user = usuarioRepository.findByMail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado"));
+
 
         direccionExistente.setPais(nuevaDireccion.getPais());
         direccionExistente.setProvincia(nuevaDireccion.getProvincia());
@@ -44,9 +50,9 @@ public class DireccionService extends BaseService<Direccion, Long, DireccionRepo
         direccionExistente.setNumero(nuevaDireccion.getNumero());
         direccionExistente.setCodigoPostal(nuevaDireccion.getCodigoPostal());
 
-        if (!direccionExistente.getUsuarios().contains(usuario)) {
-            direccionExistente.getUsuarios().add(usuario);
-            usuario.getDirecciones().add(direccionExistente);
+        if (!direccionExistente.getUsuarios().contains(user)) {
+            direccionExistente.getUsuarios().add(user);
+            user.getDirecciones().add(direccionExistente);
         }
 
         return repository.save(direccionExistente);

@@ -63,11 +63,11 @@ public class CompraController extends BaseController<Compra, Long, CompraReposit
         }
     }
 
-    @GetMapping("/user/{idUser}")
-    public ResponseEntity<?> getComprasByIdUser(@PathVariable Long idUser){
+    @GetMapping("/user")
+    public ResponseEntity<?> getComprasByIdUser(){
         try {
 
-            return ResponseEntity.ok(service.getByIdUser(idUser));
+            return ResponseEntity.ok(service.getByIdUser());
 
         }catch (Exception e){
             return ResponseEntity

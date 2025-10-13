@@ -1,10 +1,12 @@
 package org.example.Services;
 
+import org.example.Entities.AuthResponse;
 import org.example.Entities.Dto.*;
 import org.example.Entities.Enum.Rol;
 import org.example.Entities.Producto;
 import org.example.Entities.Usuario;
 import org.example.Entities.UsuariosNuevos;
+import org.example.JWT.JwtService;
 import org.example.Repositories.ProductoRepository;
 import org.example.Repositories.UsuarioRepository;
 import org.example.Repositories.UsuariosNuevosRepository;
@@ -16,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,6 +46,15 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
     @Autowired
     private ProductoRepository productoRepository;
 
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    public UsuarioService(PasswordEncoder passwordEncoder,
+                          JwtService jwtService) {
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
+
     public UsuariosNuevos registrarUsuario(UsuariosNuevos newUser) throws Exception {
         try {
 
@@ -49,12 +62,12 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             newUser.setFechaRegistro(LocalDate.now());
 
             UsuariosNuevos usuarioNuevo = new UsuariosNuevos(
-                    newUser.getPassword(),
+                    passwordEncoder.encode(newUser.getPassword()),
                     newUser.getFechaRegistro(),
                     newUser.getDni(),
                     newUser.getMail(),
                     newUser.getNombre(),
-                    Rol.User,
+                    Rol.USER,
                     codigoVerificacion
             );
 
@@ -76,7 +89,7 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
     }
 
-    public Usuario validarCodigoYRegistrar(ValidacionDTO validacionDTO){
+    public AuthResponse validarCodigoYRegistrar(ValidacionDTO validacionDTO){
             UsuariosNuevos usuarioNuevo = usuariosNuevosRepository.findByMail(validacionDTO.getMail());
 
             if (!usuarioNuevo.getCodigoVerificacion().equals(validacionDTO.getCodVerificacion())) {
@@ -99,30 +112,52 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
 
             usuariosNuevosRepository.delete(usuarioNuevo);
 
-            return usuario;
+        AuthResponse authResponse = AuthResponse.builder()
+                .fechaRegistro(usuarioNuevo.getFechaRegistro())
+                .dni(usuarioNuevo.getDni())
+                .mail(usuarioNuevo.getMail())
+                .nombre(usuarioNuevo.getNombre())
+                .rol(usuarioNuevo.getRol())
+                .direcciones(new ArrayList<>())
+                .favoritos(new HashSet<>())
+                .build();
+
+            return authResponse;
 
 
     }
 
-    public Usuario login (LoginDTO loginDTO){
-        Usuario usuario = repository.findByMail(loginDTO.getMail());
+    public AuthResponse login(LoginDTO loginDTO) {
+        Usuario usuario = repository.findByMail(loginDTO.getMail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado"));
 
-        if (!Objects.equals(usuario.getPassword(), loginDTO.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario o contraseña son incorrectas");
+        if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario o contraseña incorrecta");
         }
 
-        return usuario;
-
-
+        return new AuthResponse(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getDni(),
+                usuario.getMail(),
+                usuario.getRol(),
+                DireccionDTO.fromEntities(usuario.getDirecciones()),
+                usuario.getFechaRegistro(),
+                ProductoDTO.fromEntities(usuario.getFavoritos()),
+                jwtService.getToken(usuario)
+        );
     }
 
-    public boolean agregarFavorito(Long idProduct, Long idUser) throws Exception {
+    public boolean agregarFavorito(Long idProduct) throws Exception {
         try {
 
-            Usuario usuario = repository.getReferenceById(idUser);
+            Usuario user = repository.findByMail(
+                    SecurityContextHolder.getContext().getAuthentication().getName()
+            ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
             Producto newProductoFavorito = productoRepository.getReferenceById(idProduct);
 
-            usuario.agregarFavorito(newProductoFavorito);
+            user.agregarFavorito(newProductoFavorito);
 
             return true;
 
@@ -132,13 +167,16 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
     }
 
-    public boolean eliminarFavorito(Long idProduct, Long idUser) throws Exception {
+    public boolean eliminarFavorito(Long idProduct) throws Exception {
         try {
 
-            Usuario usuario = repository.getReferenceById(idUser);
+            Usuario user = repository.findByMail(
+                    SecurityContextHolder.getContext().getAuthentication().getName()
+            ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
             Producto deleteProductoFavorito = productoRepository.getReferenceById(idProduct);
 
-            usuario.quitarFavorito(deleteProductoFavorito);
+            user.quitarFavorito(deleteProductoFavorito);
 
             return true;
 
@@ -148,9 +186,14 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
     }
 
-    public Set<ProductoDTO> obtenerFavoritos(Long idUser) {
+    public Set<ProductoDTO> obtenerFavoritos() {
         try {
-            Set<Producto> productos = repository.getReferenceById(idUser).getFavoritos();
+
+            Usuario user = repository.findByMail(
+                    SecurityContextHolder.getContext().getAuthentication().getName()
+            ).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            Set<Producto> productos = user.getFavoritos();
 
             return productos.stream()
                     .map(ProductoDTO::fromEntity)
@@ -160,6 +203,7 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
             throw new RuntimeException(e.getMessage());
         }
     }
+
     public Page<Usuario> getUsuariosPaginados(int page, int size) throws Exception {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -174,8 +218,8 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
                 Usuario admin = Usuario.builder()
                         .nombre(userAdmin.getNombre())
                         .mail(userAdmin.getMail())
-                        .password(userAdmin.getPassword()) //FALTA ENCRIPTAR ACA
-                        .rol(Rol.Admin)
+                        .password(passwordEncoder.encode(userAdmin.getPassword())) //FALTA ENCRIPTAR ACA, Listo
+                        .rol(Rol.ADMIN)
                         .fechaRegistro(LocalDate.now())
                         .estado(true)
                         .build();
@@ -212,12 +256,12 @@ public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository
         }
     }
 
-    public UsuarioDTO updateDataUser(Long idUser, DataUser dataUser){
-        if (!repository.existsById(idUser)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado");
-        }
-        Usuario usuario = repository.getReferenceById(idUser);
-        usuario.setDni(dataUser.getDni());usuario.setNombre(dataUser.getNombre());
-        return UsuarioDTO.fromEntity(repository.saveAndFlush(usuario));
+    public UsuarioDTO updateDataUser(DataUser dataUser){
+        Usuario user = repository.findByMail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario no encontrado"));
+
+        user.setDni(dataUser.getDni());user.setNombre(dataUser.getNombre());
+        return UsuarioDTO.fromEntity(repository.saveAndFlush(user));
     }
 }

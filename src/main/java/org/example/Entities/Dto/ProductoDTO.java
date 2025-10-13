@@ -12,7 +12,9 @@ import org.example.Entities.Producto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -80,6 +82,13 @@ public class ProductoDTO {
         }
 
         return dto;
+    }
+
+    public static Set<ProductoDTO> fromEntities(Collection<Producto> productos) {
+        if (productos == null) return Set.of();
+        return productos.stream()
+                .map(ProductoDTO::fromEntity)
+                .collect(Collectors.toSet());
     }
 
 }

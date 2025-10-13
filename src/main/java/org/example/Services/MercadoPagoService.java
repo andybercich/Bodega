@@ -91,7 +91,7 @@ public class MercadoPagoService {
                 itemsList.add(map);
             }
 
-            //💸 Si existe un código de descuento, se aplica al total
+            //Si existe un código de descuento, se aplica al total
             if (codigoDescuento != null) {
                 double porcentaje = codigoDescuento.getPorcentajeDescuento() / 100.0; //porcentaje de descuento
                 BigDecimal descuento = total.multiply(BigDecimal.valueOf(porcentaje)); //monto total a descontar

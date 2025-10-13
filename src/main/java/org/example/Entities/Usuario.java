@@ -8,12 +8,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.example.Entities.Enum.Rol;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "Usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"mail"})})
@@ -22,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class Usuario extends Base{
+public class Usuario extends Base implements UserDetails {
 
     @NotNull(message = "La contraseña de usuario no puede ser nula")
     private String password;
@@ -71,4 +71,28 @@ public class Usuario extends Base{
     }
 
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<? extends GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(rol.name()));
+        System.out.println("Authorities del usuario: " + authorities);
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() { return password; }
+
+    @Override
+    public String getUsername() { return mail; }
+
+    @Override
+    public boolean isAccountNonExpired() { return isEstado(); }
+
+    @Override
+    public boolean isAccountNonLocked() { return isEstado(); }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return isEstado(); }
+
+    @Override
+    public boolean isEnabled() { return isEstado(); }
 }
