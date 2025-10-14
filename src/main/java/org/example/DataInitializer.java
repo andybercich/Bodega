@@ -16,7 +16,7 @@ import java.util.List;
 
 @Configuration
 public class DataInitializer {
-
+/*
     @Bean
     CommandLineRunner initAdmin(UsuarioRepository usuarioRepository, CategoriaRepository categoriaRepository, ProductoRepository productoRepository, ArticuloRepository articuloRepository,
                                 ImagenRepository imagenRepository ,DescuentoRepository descuentoRepository, PasswordEncoder passwordEncoder) {
@@ -142,6 +142,6 @@ public class DataInitializer {
             imagenRepository.save(imagenProducto9);
 
         };
-    }
+    }*/
 }
 

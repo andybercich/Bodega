@@ -2,6 +2,7 @@ package org.example.Services;
 
 import jakarta.transaction.Transactional;
 import org.example.Entities.*;
+import org.example.Entities.Dto.CompraDTO;
 import org.example.Entities.Dto.CompraPageDTO;
 import org.example.Entities.Dto.ProductoDTO;
 import org.example.Entities.Enum.EstadoCompra;

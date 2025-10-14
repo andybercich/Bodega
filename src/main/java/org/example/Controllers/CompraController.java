@@ -1,6 +1,8 @@
 package org.example.Controllers;
 
+import jakarta.validation.Valid;
 import org.example.Entities.Compra;
+import org.example.Entities.Dto.CompraDTO;
 import org.example.Entities.Dto.CompraPageDTO;
 import org.example.Entities.Enum.EstadoCompra;
 import org.example.Repositories.CompraRepository;
@@ -34,6 +36,18 @@ public class CompraController extends BaseController<Compra, Long, CompraReposit
                     .body("Error al obtener compras paginadas: " + e.getMessage());
         }
     }
+
+    @Override
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody Compra entity){
+        try {
+            CompraDTO createdEntity = CompraDTO.fromEntity(service.save(entity));
+            return ResponseEntity.ok(createdEntity);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
     @PutMapping("/{id}/estado")
     public ResponseEntity<?> actualizarEstado(

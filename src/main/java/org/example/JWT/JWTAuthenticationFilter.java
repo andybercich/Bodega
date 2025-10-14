@@ -27,43 +27,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        String method = request.getMethod();
-
-        // Rutas de usuario
-        if ("/usuario/registrarUsuario".equals(path) && "POST".equals(method)) return true;
-        if ("/usuario/login".equals(path) && "POST".equals(method)) return true;
-        if ("/usuario/validarMail".equals(path) && "POST".equals(method)) return true;
-
-        // Productos: todos GET son públicos
-        if (path.startsWith("/producto") && "GET".equals(method)) return true;
-
-        // Webhook de Mercado Pago
-        if ("/webhook".equals(path) && "POST".equals(method)) return true;
-
-        // Imagenes: solo GET público
-        if (path.startsWith("/imagen") && "GET".equals(method)) return true;
-
-        // Contacto/Email
-        if ("/contacto/sendContactEmail".equals(path) && "POST".equals(method)) return true;
-
-        // Descuento: solo GET público
-        if (path.startsWith("/descuento") && "GET".equals(method)) return true;
-
-        // Categorías: solo GET público
-        if ("/categorias".equals(path) && "GET".equals(method)) return true;
-
-        // Artículos: solo GET público
-        if ("/articulos".equals(path) && "GET".equals(method)) return true;
-
-        // Lo demás se filtra normalmente
-        return false;
-    }
-
-
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String token = getTokenFromRequest(request);
         final String mail;
